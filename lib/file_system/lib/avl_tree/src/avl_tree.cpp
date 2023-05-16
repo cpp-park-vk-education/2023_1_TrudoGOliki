@@ -1,8 +1,7 @@
 #include "avl_tree.hpp"
 
 namespace avl_tree {
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
+template <typename Key, typename Value, typename Comparator>
 uint8_t AVLTree<Key, Value, Comparator>::height(TreeNode *node) {
     if (!node) {
         return 0;
@@ -11,8 +10,7 @@ uint8_t AVLTree<Key, Value, Comparator>::height(TreeNode *node) {
     return node->height_;
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
+template <typename Key, typename Value, typename Comparator>
 void AVLTree<Key, Value, Comparator>::post_order(
     void (*handler)(TreeNode *node)) {
     std::stack<TreeNode *> stack1;
@@ -41,8 +39,8 @@ void AVLTree<Key, Value, Comparator>::post_order(
     }
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
+// return nullptr if node with key not exist
+template <typename Key, typename Value, typename Comparator>
 Value *AVLTree<Key, Value, Comparator>::findAux(const Key &key,
                                                 TreeNode *node) {
     if (!node) {
@@ -64,16 +62,21 @@ Value *AVLTree<Key, Value, Comparator>::findAux(const Key &key,
     return &node->val;
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *AVLTree<Key, Valut, Comparator>::insertAux(const Key &key,
-                                                     const Value &val,
-                                                     TreeNode *node) {
+// insertAux can throw AVLError
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::insertAux(const Key &key, Value &&val,
+                                           TreeNode *node) {
     if (!node) {
         return new TreeNode(key, val);
     }
 
     int res_comp = comp_(key, node->key_);
+    if (res_comp == 0) {
+        throw AVLError("in insertAux can`t insert file, because this FID "
+                       "already exist. FID: " +
+                       key);
+    }
 
     // key < node->key
     if (res_comp == -1) {
@@ -88,10 +91,9 @@ TreeNode *AVLTree<Key, Valut, Comparator>::insertAux(const Key &key,
     return balance(node);
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *AVLTree<Key, Valut, Comparator>::eraseAux(const Key &key,
-                                                    TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::eraseAux(const Key &key, TreeNode *node) {
     if (!node) {
         return nullptr;
     }
@@ -125,10 +127,9 @@ TreeNode *AVLTree<Key, Valut, Comparator>::eraseAux(const Key &key,
     return balance(node);
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *
-AVLTree<Key, Valut, Comparator>::findAndRemoveMinNode(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::findAndRemoveMinNode(TreeNode *node) {
     if (!node->left_) {
         return balance(node);
     }
@@ -145,21 +146,19 @@ AVLTree<Key, Valut, Comparator>::findAndRemoveMinNode(TreeNode *node) {
     return balance(cur_node);
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-void AVLTree<Key, Valut, Comparator>::fixHeight(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+void AVLTree<Key, Value, Comparator>::fixHeight(TreeNode *node) {
     node->height_ = std::max(height(node->left_), height(node->right_)) + 1;
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-int8_t AVLTree<Key, Valut, Comparator>::bFactor(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+int8_t AVLTree<Key, Value, Comparator>::bFactor(TreeNode *node) {
     return height(node->right_) - height(node->left_);
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *AVLTree<Key, Valut, Comparator>::balance(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::balance(TreeNode *node) {
     fixHeight(node);
 
     int8_t bF = bFactor(node);
@@ -180,9 +179,9 @@ TreeNode *AVLTree<Key, Valut, Comparator>::balance(TreeNode *node) {
     return node;
 }
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *AVLTree<Key, Valut, Comparator>::rotateLeft(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::rotateLeft(TreeNode *node) {
     TreeNode *tmp = node->right_;
     node->right_ = tmp->left_;
     tmp->left_ = node;
@@ -191,9 +190,9 @@ TreeNode *AVLTree<Key, Valut, Comparator>::rotateLeft(TreeNode *node) {
     return tmp;
 };
 
-template <typename Key, typename Value,
-          typename Comparator = DefaultComparator<Key>>
-TreeNode *AVLTree<Key, Valut, Comparator>::rotateRight(TreeNode *node) {
+template <typename Key, typename Value, typename Comparator>
+typename AVLTree<Key, Value, Comparator>::TreeNode *
+AVLTree<Key, Value, Comparator>::rotateRight(TreeNode *node) {
     TreeNode *tmp = node->left_;
     node->left_ = tmp->right_;
     tmp->right_ = node;

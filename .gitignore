@@ -2,3 +2,4 @@
 **/main
 **/a.out
 .clang-format
+build/
