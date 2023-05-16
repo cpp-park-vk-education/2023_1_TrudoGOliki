@@ -9,6 +9,8 @@
 
 using cmdT = std::string;
 
+using IExecutablePtr = std::shared_ptr<IExecutable>;
+
 class CLI {
   public:
     CLI() {}
@@ -19,9 +21,9 @@ class CLI {
     std::vector<std::string_view> argv;
 
     std::vector<Option> options;
-    cmdT command;
+    Command cmd;
 
-    std::map<cmdT, std::unique_ptr<IExecutable>> handler;
+    std::map<std::string_view, IExecutablePtr> handler;
 };
 
 /*

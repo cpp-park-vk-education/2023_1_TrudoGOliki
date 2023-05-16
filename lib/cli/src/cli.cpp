@@ -1,57 +1,69 @@
 #include "cli.hpp"
-
+#include "Option.hpp"
 #include <functional>
 #include <iostream>
+#include <string_view>
+#include <unordered_set>
 
-// void CLI::Execute() { parse_args(); }
+/*using Opt0SetFunc = std::function<void(Option &, IExecutablePtr)>;
 
-using Args0Func = std::function<void(Option &)>;
-
-const std::unordered_map<std::string_view, Args0Func> Args0Handler{
-    {"--help",
-     [](Option &s) {
+const std::unordered_map<std::string_view, Opt0SetFunc> Opt0Handler{
+    {OPT0_HELP,
+     [](Option &o, IExecutablePtr e) {
          // s.help = true;
-         std::cout << "--help\n";
+         std::cout << OPT0_HELP << "\n";
      }},
     {"-h",
-     [](Option &s) {
+     [](Option &o, IExecutablePtr e) {
          // s.help = true;
          std::cout << "-h\n";
      }},
-    {"--update",
-     [](Option &s) {
+    {OPT0_UPDATE,
+     [](Option &o, IExecutablePtr e) {
          // s.help = true;
-         std::cout << "--update\n";
+         std::cout << OPT0_UPDATE << "\n";
      }},
-    {"-status",
-     [](Option &s) {
+    {OPT0_STATUS,
+     [](Option &o, IExecutablePtr e) {
          // s.help = true;
-         std::cout << "--status\n";
+         std::cout << OPT0_STATUS << "\n";
      }},
 
 };
 
-using Args1Func = std::function<void(Option &, const std::string &)>;
+using Opt1SetFunc = std::function<void(Option &, IExecutablePtr)>;
 
-const std::unordered_map<std::string_view, Args1Func> Args1Handler{
-    {"--add",
-     [](Option &s, const std::string &arg) { std::cout << "--add\n"; }},
-    {"--path",
-     [](Option &s, const std::string &arg) { std::cout << "--path\n"; }},
-    {"--remove",
-     [](Option &s, const std::string &arg) { std::cout << "--remove\n"; }},
-    {"--mkdir",
-     [](Option &s, const std::string &arg) { std::cout << "--mkdir\n"; }},
-    {"--getfile",
-     [](Option &s, const std::string &arg) { std::cout << "--getfile\n"; }},
-    {"--timeto",
-     [](Option &s, const std::string &arg) { std::cout << "--timeto\n"; }},
+const std::unordered_map<std::string_view, Opt1SetFunc> Opt1Handler{
+    {OPT1_ADD,
+     [](Option &o, IExecutablePtr e) {
+         e->Set() = 9;
+         std::cout << "--add\n";
+     }},
+    {OPT1_PATH, [](Option &o, IExecutablePtr e) { std::cout << "--path\n"; }},
+    {OPT1_REMOVE,
+     [](Option &o, IExecutablePtr e) { std::cout << "--remove\n"; }},
+    {OPT1_MKDIR, [](Option &o, IExecutablePtr e) { std::cout << "--mkdir\n"; }},
+    {OPT1_GETFILE,
+     [](Option &o, IExecutablePtr e) { std::cout << "--getfile\n"; }},
+    {OPT1_TIMETO,
+     [](Option &o, IExecutablePtr e) { std::cout << "--timeto\n"; }},
+};
+*/
+
+const std::unordered_set<std::string_view> Opt0Handler{
+    OPT0_HELP,
+    OPT0_UPDATE,
+    OPT0_STATUS,
 };
 
-using CommandFunc = std::function<void(Option &)>;
+const std::unordered_set<std::string_view> Opt1Handler{
+    OPT1_ADD, OPT1_PATH, OPT1_REMOVE, OPT1_MKDIR, OPT1_GETFILE, OPT1_TIMETO,
+};
 
-const std::unordered_map<std::string_view, CommandFunc> CommandHandler{
-    {"homedata",
+using Cmd0Func = std::function<void(Option &)>;
+
+const std::unordered_map<std::string_view, Cmd0Func> Cmd0Handler{
+    {"addfile",
      [](Option &s) {
          // s.help = true;
          std::cout << "homedata\n";
@@ -64,13 +76,39 @@ const std::unordered_map<std::string_view, CommandFunc> CommandHandler{
 
 };
 
-void CLI::ParseArgs(int argc, char *argv[]) {
+using Cmd1Func = std::function<void(Option &)>;
 
-    std::vector<std::string_view> args(argc);
+const std::unordered_map<std::string_view, Cmd1Func> Cmd1Handler{
+    {"addfile",
+     [](Option &s) {
+         // s.help = true;
+         std::cout << "homedata\n";
+     }},
+    {"lookup",
+     [](Option &s) {
+         // s.help = true;
+         std::cout << "lookup\n";
+     }},
 
-    for (int i = 0; i < argc; ++i) {
-        args[i] = argv[i];
+};
+
+void CLI::Execute() {
+    auto CmdHandler = std::move(handler[cmd.cmd_title]);
+
+    for (auto &o : options) {
+        if (o.argument.has_value()) {
+            // auto h = Opt1Handler.at(o.flag);
+            CmdHandler->SetOpt1(o);
+        } else {
+            // auto h = Opt0Handler.at(o.flag);
+            // h(o, CmdHandler);
+            CmdHandler->SetOpt0(o);
+        }
     }
+    CmdHandler->Execute(cmd);
+}
+
+void CLI::ParseArgs(int argc, char *argv[]) {
 
     if (argc == 1) {
         std::cout << "help\n";
@@ -78,28 +116,40 @@ void CLI::ParseArgs(int argc, char *argv[]) {
         return;
     }
 
-    if (auto handler = CommandHandler.find(argv[1]);
-        handler != CommandHandler.end()) {
+    bool need_object = false;
 
-        command = argv[1];
+    if (auto handler = Cmd0Handler.find(argv[1]);
+        handler != Cmd0Handler.end()) {
+
+        cmd = {argv[1], {}};
+        need_object = true;
 
     } else {
         throw std::runtime_error{"unknow command"};
     }
 
-    for (int i = 2; i < argc; i++) {
+    if (auto handler = Cmd1Handler.find(argv[1]);
+        handler != Cmd1Handler.end()) {
+        need_object = true;
+
+    } else {
+        throw std::runtime_error{"unknow command"};
+    }
+
+    int i = 2;
+    for (; i < (argc - need_object); i++) {
         std::string_view arg = argv[i];
 
-        if (auto handler = Args0Handler.find(arg);
-            handler != Args0Handler.end()) {
+        if (auto handler = Opt0Handler.find(arg);
+            handler != Opt0Handler.end()) {
 
             options.push_back(Option{arg, {}});
             continue;
 
-        } else if (auto handler = Args1Handler.find(arg);
-                   handler != Args1Handler.end()) {
+        } else if (auto handler = Opt1Handler.find(arg);
+                   handler != Opt1Handler.end()) {
 
-            if (++i < argc) {
+            if (i < (argc - need_object)) {
                 // handler->second(args, {argv[i]});
                 options.push_back(Option{arg, {argv[i]}});
                 continue;
@@ -115,8 +165,14 @@ void CLI::ParseArgs(int argc, char *argv[]) {
             throw std::runtime_error{"undefined " + std::string{arg}};
         }
     }
+    if (need_object)
+        cmd = {argv[1], {argv[++i]}};
+    else
+        cmd = {argv[1], {}};
 
-    std::cout << command << " argS:\n";
+    // cmd = need_object ? ({argv[1], {argv[i]}}) : ({argv[1], {}});
+
+    std::cout << cmd.cmd_title << " argS:\n";
     for (auto o : options) {
         if (o.argument.has_value())
             std::cout << o.flag << " | " << o.argument.value() << std::endl;
