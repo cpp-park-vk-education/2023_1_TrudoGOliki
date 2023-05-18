@@ -12,6 +12,10 @@ bool FIDInfo::operator==(const FIDInfo &other) const {
            base_type_ == other.base_type_;
 };
 
+std::string FIDInfo::string() const {
+    return hash_type_ + content_type_ + base_type_;
+};
+
 bool FID::operator<(const FID &other) const {
     if (info_ < other.info_) {
         return true;
@@ -28,8 +32,6 @@ bool FID::operator==(const FID &other) const {
     return info_ == other.info_ && hash_ == other.hash_;
 };
 
-Path &File::getPath(const BlockDataHash &hash) {
-    return blocks_[map_block_info[hash]].path_;
-};
+std::string FID::string() const { return info_.string() + hash_; };
 
 }   // namespace file_for_fs

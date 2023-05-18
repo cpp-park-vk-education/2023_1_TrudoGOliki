@@ -1,12 +1,16 @@
 #pragma once
 
-#include <avl_tree.hpp>
 #include <bitset>
-#include <file.hpp>
 #include <filesystem>
+#include <fstream>
+#include <string_view>
+
+#include "avl_tree.hpp"
+#include "file.hpp"
 
 namespace fs {
-inline constexpr int STANDARD_BLOCK_DATA_SIZE = 1024 * 1024;
+inline constexpr uint16_t STANDARD_BUFFER_SIZE = 4096;
+inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
 
 class FSError : public std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -31,13 +35,18 @@ class AVLTreeSearch : public ITreeSearchFiles,
 
 class ManagerFilesCLI {
   public:
-    void createDir(const std::string &name, const F::Path &path);
-    void createFile(const std::string &name, const F::Path &path_from,
-                    F::Path &path_to);
+    ManagerFilesCLI(const F::Path &name_main_dir);
+
+    void addFile(const F::Path &path);
 
   private:
     F::File *processed_file_;
     F::FID file_fid;
+    F::Path path_main_dir_;
+
+    void createMainDir();
+
+    void copyFile(const F::FID &fid, const F::Path &path_from);
 };
 
 class FileSystem {
