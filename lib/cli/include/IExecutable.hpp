@@ -2,29 +2,34 @@
 #include "Option.hpp"
 
 #include <functional>
+#include <memory>
 #include <string_view>
 #include <unordered_set>
+
+template <typename T> using handler = std::unordered_map<std::string_view, T>;
+using checker = std::unordered_set<std::string_view>;
 
 struct IExecutable {
     virtual ~IExecutable(){};
 
-    virtual void Execute(Command c) = 0;
-    virtual void SetOpt0(Option o) = 0;
-    virtual void SetOpt1(Option o) = 0;
+    virtual void Execute(const Command &c) = 0;
+    virtual void SetOption(const Option &o) = 0;
 };
 
-using Opt0SetFunc = std::function<void(Option &)>;
-using Opt1SetFunc = std::function<void(Option &)>;
+using IExecutablePtr = std::shared_ptr<IExecutable>;
 
-class Addfile : public IExecutable {
+using OptSetFunc = std::function<void(const Option &)>;
+
+class LookFile : public IExecutable {
   public:
-    Addfile();
-    void Execute(Command c) override;
-    void SetOpt0(Option o) override;
-    void SetOpt1(Option o) override;
+    LookFile();
+    void Execute(const Command &c) override;
+    void SetOption(const Option &o) override;
 
   private:
-    std::string_view file_title;
-    std::unordered_map<std::string_view, Opt0SetFunc> Opt0Handler;
-    std::unordered_map<std::string_view, Opt1SetFunc> Opt1Handler;
+    handler<OptSetFunc> Opt0Handler;
+    handler<OptSetFunc> Opt1Handler;
+
+    // usable data field
+    std::string_view FID;
 };
