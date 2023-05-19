@@ -1,6 +1,3 @@
-**/sem*
-**/main
-**/a.out
-.clang-format
-build/
+/build* 
 .vscode
+*clang-format*
