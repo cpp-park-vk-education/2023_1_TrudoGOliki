@@ -1,4 +1,6 @@
-project(file_system VERSION 0.1.0)
+cmake_minimum_required(VERSION 3.20)
+project(file_system)
+
 add_library(file_system src/file_system.cpp)
 
 add_subdirectory(lib/file)
