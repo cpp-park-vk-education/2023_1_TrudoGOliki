@@ -131,7 +131,7 @@ template <typename Key, typename Value, typename Comparator>
 typename AVLTree<Key, Value, Comparator>::TreeNode *
 AVLTree<Key, Value, Comparator>::findAndRemoveMinNode(TreeNode *node) {
     if (!node->left_) {
-        return balance(node);
+        return node;
     }
 
     TreeNode *prev_node = node;
@@ -143,7 +143,7 @@ AVLTree<Key, Value, Comparator>::findAndRemoveMinNode(TreeNode *node) {
 
     prev_node->left_ = cur_node->right_;
     cur_node->right_ = node;
-    return balance(cur_node);
+    return cur_node;
 }
 
 template <typename Key, typename Value, typename Comparator>

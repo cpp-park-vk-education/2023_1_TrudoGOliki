@@ -7,9 +7,14 @@
 
 #include "avl_tree.hpp"
 #include "file.hpp"
+#include "sha256.hpp"
 
 namespace fs {
 inline constexpr uint16_t STANDARD_BUFFER_SIZE = 4096;
+inline constexpr std::string_view STANDART_HASH_TYPE = "sh";   // means sha256
+inline constexpr std::string_view STANDART_CONTENT_TYPE =
+    "tx";                                                      // means sha256
+inline constexpr std::string_view STANDART_BASE_TYPE = "b6";   // means base64
 inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
 
 class FSError : public std::runtime_error {
@@ -33,6 +38,20 @@ class AVLTreeSearch : public ITreeSearchFiles,
     F::File *find(const F::FID &fid) override;
 };
 
+struct Buffer {
+    char *buf_;
+    size_t size_;
+};
+
+class ManagerFilesNet {
+  public:
+    void selectNewFile(const F::Path &path);
+    Buffer getBuf();
+
+  private:
+    std::ifstream in_;
+};
+
 class ManagerFilesCLI {
   public:
     ManagerFilesCLI(const F::Path &name_main_dir);
@@ -45,6 +64,8 @@ class ManagerFilesCLI {
     F::Path path_main_dir_;
 
     void createMainDir();
+
+    F::FID calculFID(const F::Path &path_from);
 
     void copyFile(const F::FID &fid, const F::Path &path_from);
 };

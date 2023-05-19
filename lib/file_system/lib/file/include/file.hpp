@@ -9,18 +9,7 @@
 namespace file_for_fs {
 using Path = std::filesystem::path;
 
-struct FIDInfo {
-    const std::string hash_type_;
-    const std::string content_type_;
-    const std::string base_type_;
-
-    bool operator<(const FIDInfo &other) const;
-    bool operator==(const FIDInfo &other) const;
-    std::string string() const;
-};
-
 struct FID {
-    const FIDInfo info_;
     const std::string hash_;
 
     bool operator<(const FID &other) const;
