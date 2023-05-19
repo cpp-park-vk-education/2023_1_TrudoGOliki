@@ -105,15 +105,10 @@ CLI::CLI() {
 }
 
 void CLI::Execute() {
-
     auto CmdExecutable = std::move(CmdHandler[cmd.cmd_title]);
 
     for (auto &o : options)
         CmdExecutable->SetOption(o);
-
-    // auto h = Opt0Handler.at(o.flag);
-    // h(o, CmdHandler);
-    // CmdHandler->SetOpt0(o);
 
     CmdExecutable->Execute(cmd);
 }
@@ -147,7 +142,7 @@ void CLI::ParseArgs(int argc, char *argv[]) {
         } else if (auto handler = Opt1Set.find(arg); handler != Opt1Set.end()) {
 
             if (++i < (argc - need_object)) {
-                // handler->second(args, {argv[i]});
+
                 options.push_back(Option{arg, {argv[i]}});
                 continue;
             } else
