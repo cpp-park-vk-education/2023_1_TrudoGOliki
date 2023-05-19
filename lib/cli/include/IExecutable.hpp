@@ -19,17 +19,3 @@ struct IExecutable {
 using IExecutablePtr = std::shared_ptr<IExecutable>;
 
 using OptSetFunc = std::function<void(const Option &)>;
-
-class LookFile : public IExecutable {
-  public:
-    LookFile();
-    void Execute(const Command &c) override;
-    void SetOption(const Option &o) override;
-
-  private:
-    handler<OptSetFunc> Opt0Handler;
-    handler<OptSetFunc> Opt1Handler;
-
-    // usable data field
-    std::string_view FID;
-};

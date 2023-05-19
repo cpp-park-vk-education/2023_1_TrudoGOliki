@@ -18,7 +18,8 @@ class Connection {
     explicit Connection(const SocketAddress &address) { connect(address); }
 
     void connect(const SocketAddress &address);
-    void write(const std::string &str);
+
+    void write_str(const std::string &str);
 
     std::string read(size_t bytes);
 

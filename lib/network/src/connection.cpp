@@ -23,7 +23,7 @@ void Connection::connect(const SocketAddress &address) {
     socket_ = std::move(tmp);
 }
 
-void Connection::write(const std::string &str) {
+void Connection::write_str(const std::string &str) {
     if (!socket_.isOpen()) {
         using namespace std::string_literals;
         throw std::runtime_error("Socket is not connected");

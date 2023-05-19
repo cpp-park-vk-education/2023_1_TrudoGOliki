@@ -7,7 +7,6 @@ include(GoogleTest)
 
 add_subdirectory(lib/cli)
 add_subdirectory(lib/network)
-
+    
 add_executable(Vkyrse src/main.cpp)
-target_link_libraries(Vkyrse cli)
-target_link_libraries(Vkyrse network)
+target_link_libraries(Vkyrse cli network)

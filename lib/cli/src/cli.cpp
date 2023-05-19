@@ -1,94 +1,23 @@
 #include "cli.hpp"
 #include "Option.hpp"
+#include "cli_cmds.hpp"
+
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <string_view>
 #include <unordered_set>
 
-/*using Opt0SetFunc = std::function<void(Option &, IExecutablePtr)>;
-
-const std::unordered_map<std::string_view, Opt0SetFunc> Opt0Handler{
-    {OPT0_HELP,
-     [](Option &o, IExecutablePtr e) {
-         // s.help = true;
-         std::cout << OPT0_HELP << "\n";
-     }},
-    {"-h",
-     [](Option &o, IExecutablePtr e) {
-         // s.help = true;
-         std::cout << "-h\n";
-     }},
-    {OPT0_UPDATE,
-     [](Option &o, IExecutablePtr e) {
-         // s.help = true;
-         std::cout << OPT0_UPDATE << "\n";
-     }},
-    {OPT0_STATUS,
-     [](Option &o, IExecutablePtr e) {
-         // s.help = true;
-         std::cout << OPT0_STATUS << "\n";
-     }},
-
-};
-
-using Opt1SetFunc = std::function<void(Option &, IExecutablePtr)>;
-
-const std::unordered_map<std::string_view, Opt1SetFunc> Opt1Handler{
-    {OPT1_ADD,
-     [](Option &o, IExecutablePtr e) {
-         e->Set() = 9;
-         std::cout << "--add\n";
-     }},
-    {OPT1_PATH, [](Option &o, IExecutablePtr e) { std::cout << "--path\n"; }},
-    {OPT1_REMOVE,
-     [](Option &o, IExecutablePtr e) { std::cout << "--remove\n"; }},
-    {OPT1_MKDIR, [](Option &o, IExecutablePtr e) { std::cout << "--mkdir\n"; }},
-    {OPT1_GETFILE,
-     [](Option &o, IExecutablePtr e) { std::cout << "--getfile\n"; }},
-    {OPT1_TIMETO,
-     [](Option &o, IExecutablePtr e) { std::cout << "--timeto\n"; }},
-};
-*/
-
-/*using Cmd0Func = std::function<void(Option &)>;
-
-const std::unordered_map<std::string_view, Cmd0Func> Cmd0Handler{
-    {"ghj",
-     [](Option &s) {
-         // s.help = true;
-         std::cout << "homedata\n";
-     }},
-    {"gh",
-     [](Option &s) {
-         // s.help = true;
-         std::cout << "lookup\n";
-     }},
-
-};
-
-using Cmd1Func = std::function<void(Option &)>;
-
-const std::unordered_map<std::string_view, Cmd1Func> Cmd1Handler{
-    {"addfile",
-     [](Option &s) {
-         // s.help = true;
-         std::cout << "homedata\n";
-     }},
-    {"lookup",
-     [](Option &s) {
-         // s.help = true;
-         std::cout << "lookup\n";
-     }},
-
-};*/
-
 CLI::CLI() {
+    Help Help_;
     LookFile LookFile_;
+    ShareFile ShareFile_;
     // IExecutablePtr ex = std::make_shared<LookFile>(LookFile_);
 
     CmdHandler = handler<IExecutablePtr>{
-        {"lookfile", std::make_shared<LookFile>(LookFile_)},
+        {CMD0_HELP, std::make_shared<Help>(Help_)},
+        {CMD1_LOOKFILE, std::make_shared<LookFile>(LookFile_)},
+        {CMD1_SHAREFILE, std::make_shared<ShareFile>(ShareFile_)},
         // ex,
     };
 
@@ -100,24 +29,28 @@ CLI::CLI() {
     Opt1Set = checker{
         OPT1_ADD, OPT1_PATH, OPT1_REMOVE, OPT1_MKDIR, OPT1_GETFILE, OPT1_TIMETO,
     };
-    Cmd0Set = checker{"ghj", "jdjd"};
-    Cmd1Set = checker{"send", "lookfile"};
+    Cmd0Set = checker{CMD0_HELP, CMD0_fff, CMD0_ttt};
+    Cmd1Set = checker{CMD1_LOOKFILE, CMD1_SHAREFILE};
 }
 
 void CLI::Execute() {
-    auto CmdExecutable = std::move(CmdHandler[cmd.cmd_title]);
+    if (auto handler = CmdHandler.find(cmd.cmd_title);
+        handler != CmdHandler.end()) {
 
-    for (auto &o : options)
-        CmdExecutable->SetOption(o);
+        auto CmdExecutable = move(handler->second);
+        for (auto &o : options)
+            CmdExecutable->SetOption(o);
 
-    CmdExecutable->Execute(cmd);
+        CmdExecutable->Execute(cmd);
+    } else {
+        throw std::runtime_error{"can not find cmd in cli.cmd"};
+    }
 }
 
 void CLI::ParseArgs(int argc, char *argv[]) {
 
     if (argc == 1) {
-        std::cout << "help\n";
-        options.push_back(Option{"-h", {}});
+        cmd = {CMD0_HELP, {}};
         return;
     }
 
