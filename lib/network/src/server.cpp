@@ -1,12 +1,16 @@
 #include "server.hpp"
 #include "connection.hpp"
+#include "file_system.hpp"
 #include "protocol.hpp"
 #include "socket.hpp"
 #include "socket_address.hpp"
+
 #include <functional>
 #include <iostream>
 
-Server::Server(const SocketAddress &bindAddress) {
+Server::Server(const SocketAddress &bindAddress, std::fstream &f_stream,
+               const std::string &name_main_dir)
+    : f_s_(fs::FileSystem(f_stream, name_main_dir)) {
     const ::sockaddr_in &sock_addr = bindAddress.get();
     auto sock_addr_ptr = reinterpret_cast<const ::sockaddr *>(&sock_addr);
     int result = ::bind(socket_.get(), sock_addr_ptr, sizeof(sock_addr));
@@ -40,7 +44,7 @@ void Server::Run() {
         for (auto i : clientaddress.sa_data)
             std::cout << i;
         Protocol p;
-        p.ReciveFile(fd);
+        p.ReciveFile(fd, f_s_);
         // connection.write_str("Hello world!");
     }
 }

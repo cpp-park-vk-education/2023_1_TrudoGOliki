@@ -1,12 +1,12 @@
 #include "protocol.hpp"
 #include "connection.hpp"
-#include "file_system.hpp"
 
 #include <iostream>
 
 void Protocol::SendFile(std::string_view path, std::string_view ip) {
     auto file_base = std::fstream();
-    auto f_s = fs::FileSystem(file_base);
+    auto f_s =
+        fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
     auto fid = fs::F::FID{"aadsfa"};
     f_s.selectNewReadFile(fid);
     size_t size = f_s.getSizeFileRead();
@@ -18,15 +18,24 @@ void Protocol::SendFile(std::string_view path, std::string_view ip) {
         con.write(buf.buf_, buf.size_);
         cur_size += buf.size_;
     }
-}
+};
 
-void Protocol::ReciveFile(int fd) {
+void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {
     Socket s{fd};
     Connection connection{std::move(s)};
 
-    char *const data = connection.read(fs::STANDARD_BUFFER_SIZE);
-    for (size_t i = 0; i < fs::STANDARD_BUFFER_SIZE; ++i) {
-        std::cout << data[i];
+    auto fid = fs::F::FID{"aaaa"};
+    auto file_info = fs::F::FileInfo{"asdfasdf", 30};
+    f_s.createNewFileWrite(fid, file_info);
+
+    for (int i = 0; i < 10; i++) {
+        char *const data = connection.read(fs::STANDARD_BUFFER_SIZE);
+        fs::Buffer buf = {data, fs::STANDARD_BUFFER_SIZE};
+        f_s.writeBuf(buf);
+        for (size_t j = 0; j < fs::STANDARD_BUFFER_SIZE; ++j) {
+            std::cout << data[j];
+        }
     }
+
     std::cout << "\n";
 }

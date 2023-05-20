@@ -19,7 +19,7 @@ else()
 
 add_library(network ${SOURCES} ${HEADERS})
 #target_include_directories(network PRIVATE src)
-target_link_libraries(network protocol)
+target_link_libraries(network protocol file_system)
 target_include_directories(network PUBLIC include)
 
 endif()
