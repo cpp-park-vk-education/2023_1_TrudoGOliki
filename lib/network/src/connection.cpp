@@ -42,6 +42,39 @@ void Connection::write_str(const std::string &str) {
     }
 }
 
+void Connection::write(const char *buf, size_t len) {
+    if (!socket_.isOpen()) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Socket is not connected");
+    }
+
+    ssize_t written = ::send(socket_.get(), buf, len, 0);
+    if (written < 0) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Error writting message"s +
+                                 std::strerror(errno));
+    }
+}
+
+void Connection::write_all(const char *buf, size_t len) {
+    if (!socket_.isOpen()) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Socket is not connected");
+    }
+
+    size_t total = 0;
+
+    while (total < len) {
+        ssize_t written = ::send(socket_.get(), buf + total, len - total, 0);
+        if (written < 0) {
+            using namespace std::string_literals;
+            throw std::runtime_error("Error writting message"s +
+                                     std::strerror(errno));
+        }
+        total += written;
+    }
+}
+
 std::string Connection::read(size_t bytes) {
     if (!socket_.isOpen()) {
         using namespace std::string_literals;

@@ -38,17 +38,13 @@ void LookFile::Execute(const Command &c) {
         throw std::runtime_error{"error object for this cmd in cmd.execute()"};
 
     // Http example.com ip - 93.184.216.34
-    Connection con{SocketAddress{"93.184.216.34", 80}};
+    Connection con{SocketAddress{"127.0.0.1", 8080}};
 
-    std::string get_request = "GET / HTTP/1.1\r\n"
-                              "Host: example.com\r\n"
-                              "User-Agent: Wget/1.21.2\r\n"
-                              "Accept: */*\r\n"
-                              "Accept-Encoding: identity\r\n"
-                              "Connection: close\r\n"
-                              "\r\n";
+    int len = 8;
+    char buffer[] = {'\xb5', '\xcf', '\xff', '\x4f',
+                     '\xf0', '\x41', '\x00', '\x46'};
 
-    con.write_str(get_request);
+    con.write(buffer, len);
     std::string response = con.read(10000);
     std::cout << response << std::endl;
 }

@@ -34,6 +34,6 @@ void Server::Run() {
         Socket s{fd};
         Connection connection{std::move(s)};
         std::string data = connection.readUntil("\r\n\r\n");
-        connection.write("Hello world!");
+        connection.write_str("Hello world!");
     }
 }
