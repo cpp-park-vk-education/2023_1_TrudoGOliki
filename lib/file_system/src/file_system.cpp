@@ -4,15 +4,15 @@ namespace fs {
 // insert can throw AVLT::AVLError
 void AVLTreeSearch::insert(const F::FID &fid, F::File &&file) {
     try {
-        insert(fid, std::move(file));
+        AVLTree::insert(fid, std::move(file));
     } catch (AVLT::AVLError &e) {
         throw;
     }
 };
 
-void AVLTreeSearch::erase(const F::FID &fid) { erase(fid); };
+void AVLTreeSearch::erase(const F::FID &fid) { AVLTree::erase(fid); };
 
-F::File *AVLTreeSearch::find(const F::FID &fid) { return find(fid); };
+F::File *AVLTreeSearch::find(const F::FID &fid) { return AVLTree::find(fid); };
 
 void ManagerFilesNet::updateSize() {
     f_stream_.seekg(0, std::ios::end);
@@ -211,13 +211,24 @@ size_t FileSystem::getSizeFileRead() const {
     return manager_net_.getSizeFileRead();
 };
 
+// FileSystem::createNewFileWrite() can throw FSError
 void FileSystem::createNewFileWrite(const F::FID &fid,
                                     const F::FileInfo &info) {
-    auto file = F::File();
-    file.info_ = info;
-    std::string extension = ".txt";   // from info later
-    file.path_ = path_main_dir_ / (fid.string() + extension);
-    return manager_net_.createNewFileWrite(fid, file);
+    try {
+        F::File *find_file = tree2_.find(fid);
+        if (find_file) {
+            throw FSError("file with FID: " + fid.string() + "already exist");
+        }
+        auto file = new F::File();
+        file->info_ = info;
+        std::string extension = ".txt";   // from info later
+        file->path_ = path_main_dir_ / (fid.string() + extension);
+        manager_net_.createNewFileWrite(fid, *file);
+        tree2_.insert(fid, std::move(*file));
+    } catch (std::exception &e) {
+        throw FSError("in FileSystem::createNewFileWrite: " +
+                      static_cast<std::string>(e.what()));
+    }
 }
 
 void FileSystem::writeBuf(const Buffer &buf) {

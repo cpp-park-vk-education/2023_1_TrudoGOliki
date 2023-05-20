@@ -94,6 +94,7 @@ class FileSystem {
 
   private:
     MockTree tree_;
+    AVLTreeSearch tree2_;
     // ManagerFilesCLI manager_cli_;
     ManagerFilesNet manager_net_;
 

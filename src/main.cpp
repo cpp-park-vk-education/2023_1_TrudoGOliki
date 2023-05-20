@@ -3,6 +3,7 @@
 #include "file_system.hpp"
 
 int main(int argc, char *argv[]) {
+    // auto tree = fs::AVLT::AVLTree<fs::F::FID, fs::F::File>();
     auto file_base = std::fstream();
     auto f_s =
         fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
