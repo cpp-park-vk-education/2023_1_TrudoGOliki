@@ -38,7 +38,7 @@ void Connection::write(const char *buf, size_t len) {
     }
 }
 
-char *Connection::read(size_t len) {
+fs::Buffer Connection::read(size_t len) {
     if (!socket_.isOpen()) {
         using namespace std::string_literals;
         throw std::runtime_error("Socket is not connected");
@@ -52,10 +52,10 @@ char *Connection::read(size_t len) {
                                  std::strerror(errno));
     }
 
-    for (size_t j = 0; j < len; ++j) {
-        std::cout << buf[j];
-    }
-    return buf;
+    // for (size_t j = 0; j < len; ++j) {
+    //     std::cout << buf[j];
+    // }
+    return fs::Buffer{buf, len};
 }
 
 void Connection::write_str(const std::string &str) {

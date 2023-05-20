@@ -6,9 +6,8 @@
 void Protocol::SendFile(std::string_view path, std::string_view ip) {
     auto file_base = std::fstream();
 
-    auto f_s =
-        fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
-    auto fid = fs::F::FID{"aadsfa"};
+    auto f_s = fs::FileSystem(file_base, std::string{fs::NAME_MAIN_DIR});
+    auto fid = fs::F::FID{std::string{path}};
 
     f_s.selectNewReadFile(fid);
     size_t size = f_s.getSizeFileRead();
@@ -28,18 +27,21 @@ void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {
     Connection connection{std::move(s)};
 
     auto fid = fs::F::FID{"aaaa"};
-    auto file_info = fs::F::FileInfo{"asdfasdf", 40960};
+    auto file_info = fs::F::FileInfo{"asdfasdf", 1439};
     f_s.createNewFileWrite(fid, file_info);
 
-    for (int i = 0; i < 3; i++) {
-        char *data = connection.read(fs::STANDARD_BUFFER_SIZE);
-        std::cout << "sss" << std::endl;
-        fs::Buffer buf = {data, fs::STANDARD_BUFFER_SIZE};
-        if (data) {
+    for (size_t cur_size = 0; cur_size < file_info.size_;) {
+        size_t cur_read_count = file_info.size_ < fs::STANDARD_BUFFER_SIZE
+                                    ? file_info.size_
+                                    : fs::STANDARD_BUFFER_SIZE;
+        fs::Buffer data = connection.read(cur_read_count);
+        fs::Buffer buf = {data.buf_, cur_read_count};
+        if (data.buf_) {
             f_s.writeBuf(buf);
-            for (size_t j = 0; j < fs::STANDARD_BUFFER_SIZE; ++j) {
-                std::cout << data[j];
+            for (size_t j = 0; j < cur_read_count; ++j) {
+                std::cout << data.buf_[j];
             }
+            cur_size += cur_read_count;
         }
     }
 

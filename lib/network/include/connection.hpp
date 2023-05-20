@@ -1,5 +1,6 @@
 #pragma once
 
+#include "file_system.hpp"
 #include "socket.hpp"
 #include "socket_address.hpp"
 
@@ -24,7 +25,7 @@ class Connection {
     void write_all(const char *buf, size_t len);
 
     std::string read_str(size_t bytes);
-    char *read(size_t len);
+    fs::Buffer read(size_t len);
 
     std::string readUntil(const std::string &terminator);
 

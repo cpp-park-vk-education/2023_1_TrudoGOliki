@@ -12,7 +12,8 @@
 
 namespace fs {
 inline constexpr uint16_t STANDARD_BUFFER_SIZE = 4096;
-inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
+inline constexpr std::string_view NAME_MAIN_DIR =
+    "techno_park/2023_1_TrudoGOliki/build";
 
 class FSError : public std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -39,9 +40,7 @@ class MockTree {
   public:
     void insert(const F::FID &fid, F::File &&file){};
     F::File *find(const F::FID &fid) {
-        return new F::File{
-            "/home/vilin/techno_park/2023_1_TrudoGOliki/build/CMakeCache.txt",
-            {"sdf", 10}};
+        return new F::File{fid.string(), {"sdf", 10}};
     }
 };
 
