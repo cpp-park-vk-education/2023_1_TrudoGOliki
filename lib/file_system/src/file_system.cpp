@@ -14,29 +14,44 @@ void AVLTreeSearch::erase(const F::FID &fid) { erase(fid); };
 
 F::File *AVLTreeSearch::find(const F::FID &fid) { return find(fid); };
 
-// ManagerFilesNet::selectNewFile() can throw FSError
-void ManagerFilesNet::selectNewFile(const F::Path &path) {
-    if (in_.is_open()) {
-        in_.close();
+void ManagerFilesNet::updateSize() {
+    f_stream_.seekg(0, std::ios::end);
+    size_file_ = f_stream_.tellg();
+};
+
+// ManagerFilesNet::selectNewFileRead() can throw FSError
+void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
+    if (f_stream_.is_open()) {
+        f_stream_.close();
     }
 
-    in_ = std::ifstream(path.string(), std::ios::binary);
-    if (!in_.is_open()) {
-        throw FSError("in selectNewFile can`t open file");
+    f_stream_.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+    try {
+        f_stream_.open(path.string(), std::ios::binary | std::ios::in);
+        updateSize();
+    } catch (std::ios::failure &e) {
+        throw FSError("in selectNewFileRead exception: " +
+                      static_cast<std::string>(e.what()));
     }
 }
 
+size_t ManagerFilesNet::getSizeFileRead() const { return size_file_; }
+
 // ManagerFilesNet::getBuf() can throw FSError
 Buffer ManagerFilesNet::getBuf() {
-    char buffer[STANDARD_BUFFER_SIZE];
-    if (in_.read(buffer, STANDARD_BUFFER_SIZE)) {
-        return Buffer{buffer, STANDARD_BUFFER_SIZE};
-    }
-    if (in_.gcount() > 0) {
-        return Buffer{buffer, static_cast<size_t>(in_.gcount())};
-    }
+    try {
+        char buffer[STANDARD_BUFFER_SIZE];
+        f_stream_.read(buffer, STANDARD_BUFFER_SIZE);
+        auto remainder = f_stream_.gcount();
+        if (remainder < 0) {
+            throw FSError("gcount() return negative value");
+        }
 
-    throw FSError("in getBuf can`t read file");
+        return Buffer{buffer, static_cast<size_t>(remainder)};
+    } catch (std::ios::failure &e) {
+        throw FSError("in getBuf exception: " +
+                      static_cast<std::string>(e.what()));
+    }
 }
 
 ManagerFilesCLI::ManagerFilesCLI(const F::Path &name_main_dir) {
@@ -148,4 +163,12 @@ void ManagerFilesCLI::createMainDir() {
     }
 };
 
+void FileSystem::selectNewReadFile(const F::FID &fid) {
+    F::File *file = tree_.find(fid);
+    if (file) {
+        manager_net_.selectNewFileRead(file->path_);
+    }
+}
+
+FileSystem::FileSystem(std::fstream &f_stream) : manager_net_(f_stream) {}
 }   // namespace fs

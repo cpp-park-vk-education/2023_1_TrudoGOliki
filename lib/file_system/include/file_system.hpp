@@ -11,10 +11,6 @@
 
 namespace fs {
 inline constexpr uint16_t STANDARD_BUFFER_SIZE = 4096;
-inline constexpr std::string_view STANDART_HASH_TYPE = "sh";   // means sha256
-inline constexpr std::string_view STANDART_CONTENT_TYPE =
-    "tx";                                                      // means sha256
-inline constexpr std::string_view STANDART_BASE_TYPE = "b6";   // means base64
 inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
 
 class FSError : public std::runtime_error {
@@ -24,18 +20,28 @@ class FSError : public std::runtime_error {
 namespace F = file_for_fs;
 namespace AVLT = avl_tree;
 
-class ITreeSearchFiles {
+// class ITreeSearchFiles {
+//   public:
+//     virtual void insert(const F::FID &fid, F::File &&file) = 0;
+//     virtual void erase(const F::FID &fid) = 0;
+//     virtual F::File *find(const F::FID &fid) = 0;
+// };
+
+class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
   public:
-    virtual void insert(const F::FID &fid, F::File &&file) = 0;
-    virtual void erase(const F::FID &fid) = 0;
-    virtual F::File *find(const F::FID &fid) = 0;
+    void insert(const F::FID &fid, F::File &&file);
+    void erase(const F::FID &fid);
+    F::File *find(const F::FID &fid);
 };
 
-class AVLTreeSearch : public ITreeSearchFiles,
-                      public AVLT::AVLTree<F::FID, F::File> {
-    void insert(const F::FID &fid, F::File &&file) override;
-    void erase(const F::FID &fid) override;
-    F::File *find(const F::FID &fid) override;
+class MockTree {
+  public:
+    void insert(const F::FID &fid, F::File &&file){};
+    F::File *find(const F::FID &fid) {
+        return new F::File{
+            "/home/vilin/techno_park/2023_1_TrudoGOliki/.gitignore",
+            {"sdf", 10}};
+    }
 };
 
 struct Buffer {
@@ -45,11 +51,17 @@ struct Buffer {
 
 class ManagerFilesNet {
   public:
-    void selectNewFile(const F::Path &path);
+    ManagerFilesNet(std::fstream &f_stream) : f_stream_(f_stream){};
+
+    void selectNewFileRead(const F::Path &path);
     Buffer getBuf();
+    size_t getSizeFileRead() const;
 
   private:
-    std::ifstream in_;
+    size_t size_file_;
+    std::fstream &f_stream_;
+
+    void updateSize();
 };
 
 class ManagerFilesCLI {
@@ -71,8 +83,15 @@ class ManagerFilesCLI {
 };
 
 class FileSystem {
+  public:
+    FileSystem(std::fstream &f_stream);
+    void selectNewReadFile(const F::FID &fid);
+    Buffer getBuf() { return manager_net_.getBuf(); }
+    size_t getSizeFileRead() const { return manager_net_.getSizeFileRead(); };
+
   private:
-    AVLTreeSearch tree;
-    ManagerFilesCLI manager_cli;
+    MockTree tree_;
+    // ManagerFilesCLI manager_cli_;
+    ManagerFilesNet manager_net_;
 };
 }   // namespace fs
