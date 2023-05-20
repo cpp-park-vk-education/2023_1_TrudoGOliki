@@ -44,7 +44,7 @@ void Server::Run() {
         for (auto i : clientaddress.sa_data)
             std::cout << i;
         Protocol p;
-        p.ReciveFile(fd, f_s_);
+        // p.ReciveFile(fd, f_s_);
         // connection.write_str("Hello world!");
     }
 }

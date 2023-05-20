@@ -25,7 +25,7 @@ void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {
     Connection connection{std::move(s)};
 
     auto fid = fs::F::FID{"aaaa"};
-    auto file_info = fs::F::FileInfo{"asdfasdf", 30};
+    auto file_info = fs::F::FileInfo{"asdfasdf", 40960};
     f_s.createNewFileWrite(fid, file_info);
 
     for (int i = 0; i < 10; i++) {
