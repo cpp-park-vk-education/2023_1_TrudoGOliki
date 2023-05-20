@@ -9,13 +9,24 @@ set(HEADERS include/cli.hpp include/Option.hpp include/IExecutable.hpp)
 
 add_compile_options(-Wall -Wextra)
 
-add_library(cli ${SOURCES} ${HEADERS})
-target_link_libraries(cli protocol)
-target_include_directories(cli PUBLIC ./include)
+
 
 
 #add_library(cli )
 #target_include_directories(cli PUBLIC include)
+
+if(TARGET cli)
+
+message("cli is already defined")
+
+else()
+
+add_library(cli ${SOURCES} ${HEADERS})
+target_link_libraries(cli protocol)
+target_include_directories(cli PUBLIC ./include)
+
+endif()
+
 
 if(BUILD_TESTS)
   add_subdirectory(tests)

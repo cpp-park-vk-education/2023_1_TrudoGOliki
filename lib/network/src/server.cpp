@@ -1,9 +1,10 @@
 #include "server.hpp"
-
 #include "connection.hpp"
+#include "protocol.hpp"
 #include "socket.hpp"
 #include "socket_address.hpp"
 #include <functional>
+#include <iostream>
 
 Server::Server(const SocketAddress &bindAddress) {
     const ::sockaddr_in &sock_addr = bindAddress.get();
@@ -15,7 +16,7 @@ Server::Server(const SocketAddress &bindAddress) {
                                  std::strerror(errno));
     }
 
-    result = ::listen(socket_.get(), 1);
+    result = ::listen(socket_.get(), 10);
     if (result < 0) {
         using namespace std::string_literals;
         throw std::runtime_error("Cannot mark socket as listen "s +
@@ -25,15 +26,21 @@ Server::Server(const SocketAddress &bindAddress) {
 
 void Server::Run() {
     while (true) {
-        int fd = ::accept(socket_.get(), nullptr, nullptr);
+        struct sockaddr clientaddress;
+        socklen_t address_len = sizeof(clientaddress);
+
+        int fd = ::accept(socket_.get(), &clientaddress, &address_len);
         if (fd < 0) {
             using namespace std::string_literals;
             throw std::runtime_error("Cannot accept new connection "s +
                                      std::strerror(errno));
         }
-        Socket s{fd};
-        Connection connection{std::move(s)};
-        std::string data = connection.readUntil("\r\n\r\n");
-        connection.write_str("Hello world!");
+
+        std::cout << "Client get connect by socketaddr: ";
+        for (auto i : clientaddress.sa_data)
+            std::cout << i;
+        Protocol p;
+        p.ReciveFile(fd);
+        // connection.write_str("Hello world!");
     }
 }

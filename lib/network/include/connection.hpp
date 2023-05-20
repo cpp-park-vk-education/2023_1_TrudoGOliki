@@ -23,7 +23,8 @@ class Connection {
     void write(const char *buf, size_t len);
     void write_all(const char *buf, size_t len);
 
-    std::string read(size_t bytes);
+    std::string read_str(size_t bytes);
+    char *read(size_t len);
 
     std::string readUntil(const std::string &terminator);
 

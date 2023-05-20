@@ -7,6 +7,15 @@ set(SOURCES src/protocol.cpp)
 
 add_compile_options(-Wall -Wextra)
 
+if(TARGET protocol)
+
+message("protocol is already defined")
+
+else()
+
 add_library(protocol ${SOURCES} ${HEADERS})
 target_link_libraries(protocol network file_system)
 target_include_directories(protocol PUBLIC include)
+
+endif()
+

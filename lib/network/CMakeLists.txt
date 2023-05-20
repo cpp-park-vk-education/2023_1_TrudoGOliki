@@ -9,6 +9,17 @@ set(SOURCES src/connection.cpp src/server.cpp)
 
 add_compile_options(-Wall -Wextra)
 
+
+
+if(TARGET network)
+
+message("network is already defined")
+
+else()
+
 add_library(network ${SOURCES} ${HEADERS})
 #target_include_directories(network PRIVATE src)
+target_link_libraries(network protocol)
 target_include_directories(network PUBLIC include)
+
+endif()

@@ -23,6 +23,36 @@ void Connection::connect(const SocketAddress &address) {
     socket_ = std::move(tmp);
 }
 
+void Connection::write(const char *buf, size_t len) {
+    if (!socket_.isOpen()) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Socket is not connected");
+    }
+
+    ssize_t written = ::send(socket_.get(), buf, len, 0);
+    if (written < 0) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Error writting message"s +
+                                 std::strerror(errno));
+    }
+}
+
+char *Connection::read(size_t len) {
+    if (!socket_.isOpen()) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Socket is not connected");
+    }
+    char buf[len];
+
+    ssize_t result = ::recv(socket_.get(), buf, len, 0);
+    if (result < 0) {
+        using namespace std::string_literals;
+        throw std::runtime_error("Error reading message"s +
+                                 std::strerror(errno));
+    }
+    return buf;
+}
+
 void Connection::write_str(const std::string &str) {
     if (!socket_.isOpen()) {
         using namespace std::string_literals;
@@ -39,20 +69,6 @@ void Connection::write_str(const std::string &str) {
                                      std::strerror(errno));
         }
         to_write.remove_prefix(written);
-    }
-}
-
-void Connection::write(const char *buf, size_t len) {
-    if (!socket_.isOpen()) {
-        using namespace std::string_literals;
-        throw std::runtime_error("Socket is not connected");
-    }
-
-    ssize_t written = ::send(socket_.get(), buf, len, 0);
-    if (written < 0) {
-        using namespace std::string_literals;
-        throw std::runtime_error("Error writting message"s +
-                                 std::strerror(errno));
     }
 }
 
@@ -75,7 +91,7 @@ void Connection::write_all(const char *buf, size_t len) {
     }
 }
 
-std::string Connection::read(size_t bytes) {
+std::string Connection::read_str(size_t bytes) {
     if (!socket_.isOpen()) {
         using namespace std::string_literals;
         throw std::runtime_error("Socket is not connected");
