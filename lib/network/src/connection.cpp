@@ -4,6 +4,7 @@
 #include "socket_address.hpp"
 
 #include <arpa/inet.h>
+#include <iostream>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <string_view>
@@ -49,6 +50,10 @@ char *Connection::read(size_t len) {
         using namespace std::string_literals;
         throw std::runtime_error("Error reading message"s +
                                  std::strerror(errno));
+    }
+
+    for (size_t j = 0; j < len; ++j) {
+        std::cout << buf[j];
     }
     return buf;
 }

@@ -40,7 +40,8 @@ class MockTree {
     void insert(const F::FID &fid, F::File &&file){};
     F::File *find(const F::FID &fid) {
         return new F::File{
-            "/home/mrdjeb/park/2023_1_TrudoGOliki/build/Makefile", {"sdf", 10}};
+            "/home/vilin/techno_park/2023_1_TrudoGOliki/build/CMakeCache.txt",
+            {"sdf", 10}};
     }
 };
 

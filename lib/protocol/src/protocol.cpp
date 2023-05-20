@@ -6,7 +6,8 @@
 void Protocol::SendFile(std::string_view path, std::string_view ip) {
     auto file_base = std::fstream();
 
-    auto f_s = fs::FileSystem(file_base, "park/2023_1_TrudoGOliki/build");
+    auto f_s =
+        fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
     auto fid = fs::F::FID{"aadsfa"};
 
     f_s.selectNewReadFile(fid);
@@ -30,12 +31,15 @@ void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {
     auto file_info = fs::F::FileInfo{"asdfasdf", 40960};
     f_s.createNewFileWrite(fid, file_info);
 
-    for (int i = 0; i < 10; i++) {
-        char *const data = connection.read(fs::STANDARD_BUFFER_SIZE);
+    for (int i = 0; i < 3; i++) {
+        char *data = connection.read(fs::STANDARD_BUFFER_SIZE);
+        std::cout << "sss" << std::endl;
         fs::Buffer buf = {data, fs::STANDARD_BUFFER_SIZE};
-        f_s.writeBuf(buf);
-        for (size_t j = 0; j < fs::STANDARD_BUFFER_SIZE; ++j) {
-            std::cout << data[j];
+        if (data) {
+            f_s.writeBuf(buf);
+            for (size_t j = 0; j < fs::STANDARD_BUFFER_SIZE; ++j) {
+                std::cout << data[j];
+            }
         }
     }
 
