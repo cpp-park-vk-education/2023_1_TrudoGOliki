@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-project(Vkyrse VERSION 0.1.0)
-
-enable_testing()
-find_package(GTest REQUIRED)
-include(GoogleTest)
+project(Vkyrse_all VERSION 0.1.0)
 
 add_subdirectory(lib/cli)
-add_subdirectory(lib/network)
+add_subdirectory(lib/network network)
 add_subdirectory(lib/file_system)
 add_subdirectory(lib/protocol)
-    
-add_executable(Vkyrse src/main.cpp)
-target_link_libraries(Vkyrse cli network file_system protocol)
+
+add_subdirectory(src_cli)
+add_subdirectory(src_deamon)

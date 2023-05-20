@@ -18,12 +18,15 @@ void Protocol::SendFile(std::string_view path, std::string_view ip) {
         con.write(buf.buf_, buf.size_);
         cur_size += buf.size_;
     }
+}
 
-    // auto manager_net = fs::ManagerFilesNet();
-    // manager_net.selectNewFile(fs::F::Path(path));
+void Protocol::ReciveFile(int fd) {
+    Socket s{fd};
+    Connection connection{std::move(s)};
 
-    // fs::Buffer buf = manager_net.getBuf();
-
-    // std::string response = con.read(10000);
-    // std::cout << response << std::endl;
+    char *const data = connection.read(fs::STANDARD_BUFFER_SIZE);
+    for (size_t i = 0; i < fs::STANDARD_BUFFER_SIZE; ++i) {
+        std::cout << data[i];
+    }
+    std::cout << "\n";
 }

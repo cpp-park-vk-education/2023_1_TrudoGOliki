@@ -6,6 +6,7 @@ class Protocol {
     Protocol() = default;
 
     void SendFile(std::string_view path, std::string_view ip);
+    void ReciveFile(int fd);
 
   private:
 };
