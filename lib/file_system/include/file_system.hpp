@@ -3,6 +3,7 @@
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <string_view>
 
 #include "avl_tree.hpp"
@@ -39,7 +40,7 @@ class MockTree {
     void insert(const F::FID &fid, F::File &&file){};
     F::File *find(const F::FID &fid) {
         return new F::File{
-            "/home/vilin/techno_park/2023_1_TrudoGOliki/.gitignore",
+            "/home/vilin/techno_park/2023_1_TrudoGOliki/README.md",
             {"sdf", 10}};
     }
 };
@@ -57,7 +58,7 @@ class ManagerFilesNet {
     Buffer getBuf();
     size_t getSizeFileRead() const;
 
-  private:
+    private:
     size_t size_file_;
     std::fstream &f_stream_;
 

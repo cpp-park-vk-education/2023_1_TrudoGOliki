@@ -17,6 +17,7 @@ F::File *AVLTreeSearch::find(const F::FID &fid) { return find(fid); };
 void ManagerFilesNet::updateSize() {
     f_stream_.seekg(0, std::ios::end);
     size_file_ = f_stream_.tellg();
+    f_stream_.seekg(0, std::ios::beg);
 };
 
 // ManagerFilesNet::selectNewFileRead() can throw FSError
@@ -25,10 +26,11 @@ void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
         f_stream_.close();
     }
 
-    f_stream_.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+    f_stream_.exceptions(std::ios_base::badbit);
     try {
         f_stream_.open(path.string(), std::ios::binary | std::ios::in);
         updateSize();
+        char buffer[STANDARD_BUFFER_SIZE];
     } catch (std::ios::failure &e) {
         throw FSError("in selectNewFileRead exception: " +
                       static_cast<std::string>(e.what()));
