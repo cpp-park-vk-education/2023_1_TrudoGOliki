@@ -20,7 +20,7 @@ Server::Server(const SocketAddress &bindAddress, std::fstream &f_stream,
                                  std::strerror(errno));
     }
 
-    result = ::listen(socket_.get(), 10);
+    result = ::listen(socket_.get(), 1);
     if (result < 0) {
         using namespace std::string_literals;
         throw std::runtime_error("Cannot mark socket as listen "s +
@@ -32,7 +32,7 @@ void Server::Run() {
     while (true) {
         struct sockaddr clientaddress;
         socklen_t address_len = sizeof(clientaddress);
-
+        std::cout << "try\n";
         int fd = ::accept(socket_.get(), &clientaddress, &address_len);
         if (fd < 0) {
             using namespace std::string_literals;
@@ -44,7 +44,7 @@ void Server::Run() {
         for (auto i : clientaddress.sa_data)
             std::cout << i;
         Protocol p;
-        // p.ReciveFile(fd, f_s_);
+        p.ReciveFile(fd, f_s_);
         // connection.write_str("Hello world!");
     }
 }

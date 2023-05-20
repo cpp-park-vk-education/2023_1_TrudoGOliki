@@ -5,19 +5,21 @@
 
 void Protocol::SendFile(std::string_view path, std::string_view ip) {
     auto file_base = std::fstream();
-    auto f_s =
-        fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
+
+    auto f_s = fs::FileSystem(file_base, "park/2023_1_TrudoGOliki/build");
     auto fid = fs::F::FID{"aadsfa"};
+
     f_s.selectNewReadFile(fid);
     size_t size = f_s.getSizeFileRead();
-    Connection con{SocketAddress{std::string{ip}, 8080}};
-    // std::cout << "start work";
+    Connection con{SocketAddress{std::string{ip}, 8080, INADDR_LOOPBACK}};
+    std::cout << "start work" << std::endl;
     for (size_t cur_size = 0; cur_size < size;) {
         fs::Buffer buf = f_s.getBuf();
-        // std::cout << "work" << buf.size_ << std::endl;
+        std::cout << "work" << buf.size_ << std::endl;
         con.write(buf.buf_, buf.size_);
         cur_size += buf.size_;
     }
+    std::cout << "end work";
 };
 
 void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {

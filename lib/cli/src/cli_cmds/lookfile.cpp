@@ -23,9 +23,18 @@ LookFile::LookFile() {
     Opt0Handler = handler<OptSetFunc>{
         {OPT0_HELP, [](const Option &o) { std::cout << o.flag << "\n"; }},
     };
+
     Opt1Handler = handler<OptSetFunc>{
-        {OPT1_PATH, [this](const Option &o) { Path = o.argument.value(); }},
-        {OPT1_IP, [this](const Option &o) { Ip = o.argument.value(); }},
+        {OPT1_PATH,
+         [this](const Option &o) {
+             if (o.argument.has_value())
+                 Path = o.argument.value();
+         }},
+        {OPT1_IP,
+         [this](const Option &o) {
+             if (o.argument.has_value())
+                 Ip = o.argument.value();
+         }},
     };
 }
 
@@ -35,7 +44,6 @@ void LookFile::Execute(const Command &c) {
         FID = c.object.value();
     } else
         throw std::runtime_error{"error object for this cmd in cmd.execute()"};
-
     Protocol p;
     p.SendFile(FID, Ip);
 }
