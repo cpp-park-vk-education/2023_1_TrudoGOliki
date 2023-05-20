@@ -30,6 +30,8 @@ class LookFile : public IExecutable {
 
     // START usable data field //
     std::string_view FID;
+    std::string_view Path;
+    std::string_view Ip = "127.0.0.1";
     // END usable data field //
 };
 

@@ -27,7 +27,8 @@ CLI::CLI() {
         OPT0_STATUS,
     };
     Opt1Set = checker{
-        OPT1_ADD, OPT1_PATH, OPT1_REMOVE, OPT1_MKDIR, OPT1_GETFILE, OPT1_TIMETO,
+        OPT1_ADD,     OPT1_PATH,   OPT1_REMOVE, OPT1_MKDIR,
+        OPT1_GETFILE, OPT1_TIMETO, OPT1_IP,
     };
     Cmd0Set = checker{CMD0_HELP, CMD0_fff, CMD0_ttt};
     Cmd1Set = checker{CMD1_LOOKFILE, CMD1_SHAREFILE};

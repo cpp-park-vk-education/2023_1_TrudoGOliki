@@ -23,6 +23,7 @@ constexpr std::string_view OPT1_REMOVE{"--remove"};
 constexpr std::string_view OPT1_MKDIR{"--mkdir"};
 constexpr std::string_view OPT1_GETFILE{"--getfile"};
 constexpr std::string_view OPT1_TIMETO{"--timeto"};
+constexpr std::string_view OPT1_IP{"--ip"};
 
 constexpr std::string_view CMD0_HELP{"help"};
 constexpr std::string_view CMD0_ttt{"ttt"};
