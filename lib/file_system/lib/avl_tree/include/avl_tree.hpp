@@ -49,9 +49,7 @@ class AVLTree {
     };
     void erase(const Key &key) { root_ = eraseAux(key, root_); };
 
-    ~AVLTree() {
-        post_order([](TreeNode *node) { delete node; });
-    };
+    ~AVLTree();
 
   private:
     TreeNode *root_;

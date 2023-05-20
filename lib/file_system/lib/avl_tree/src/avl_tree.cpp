@@ -200,4 +200,9 @@ AVLTree<Key, Value, Comparator>::rotateRight(TreeNode *node) {
     fixHeight(tmp);
     return tmp;
 };
+
+template <typename Key, typename Value, typename Comparator>
+AVLTree<Key, Value, Comparator>::~AVLTree() {
+    post_order([](TreeNode *node) { delete node; });
+};
 }   // namespace avl_tree
