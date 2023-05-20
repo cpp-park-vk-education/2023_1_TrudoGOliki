@@ -1,6 +1,5 @@
 #include "cli_cmds.hpp"
-
-#include "connection.hpp"
+#include "protocol.hpp"
 
 #include <iostream>
 
@@ -25,8 +24,8 @@ LookFile::LookFile() {
         {OPT0_HELP, [](const Option &o) { std::cout << o.flag << "\n"; }},
     };
     Opt1Handler = handler<OptSetFunc>{
-        {OPT1_PATH, [](const Option &o) { std::cout << o.flag << "\n"; }},
-        {OPT1_ADD, [](const Option &o) { std::cout << o.flag << "\n"; }},
+        {OPT1_PATH, [this](const Option &o) { Path = o.argument.value(); }},
+        {OPT1_IP, [this](const Option &o) { Ip = o.argument.value(); }},
     };
 }
 
@@ -37,18 +36,6 @@ void LookFile::Execute(const Command &c) {
     } else
         throw std::runtime_error{"error object for this cmd in cmd.execute()"};
 
-    // Http example.com ip - 93.184.216.34
-    Connection con{SocketAddress{"93.184.216.34", 80}};
-
-    std::string get_request = "GET / HTTP/1.1\r\n"
-                              "Host: example.com\r\n"
-                              "User-Agent: Wget/1.21.2\r\n"
-                              "Accept: */*\r\n"
-                              "Accept-Encoding: identity\r\n"
-                              "Connection: close\r\n"
-                              "\r\n";
-
-    con.write_str(get_request);
-    std::string response = con.read(10000);
-    std::cout << response << std::endl;
+    Protocol p;
+    p.SendFile(FID, Ip);
 }

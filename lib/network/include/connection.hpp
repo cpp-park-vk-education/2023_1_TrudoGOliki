@@ -20,6 +20,8 @@ class Connection {
     void connect(const SocketAddress &address);
 
     void write_str(const std::string &str);
+    void write(const char *buf, size_t len);
+    void write_all(const char *buf, size_t len);
 
     std::string read(size_t bytes);
 

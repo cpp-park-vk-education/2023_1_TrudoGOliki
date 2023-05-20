@@ -1,6 +1,5 @@
 
 #include "cli.hpp"
-#include "file_system.hpp"
 
 #include <iostream>
 
@@ -19,14 +18,6 @@ int main(int argc, char *argv[]) {
 
     cliI.Execute();
 
-    //////////////////////////
-    auto manager_net = fs::ManagerFilesNet();
-    manager_net.selectNewFile(fs::F::Path(".gitignore"));
-    fs::Buffer buf = manager_net.getBuf();
-    for (int i = 0; i < fs::STANDARD_BUFFER_SIZE; i++) {
-        std::cout << buf.buf_[i];
-    }
-    /////////////////////////////
     return 0;
 
     // auto file_base = std::fstream();

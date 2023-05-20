@@ -8,6 +8,7 @@ include(GoogleTest)
 add_subdirectory(lib/cli)
 add_subdirectory(lib/network)
 add_subdirectory(lib/file_system)
+add_subdirectory(lib/protocol)
     
 add_executable(Vkyrse src/main.cpp)
-target_link_libraries(Vkyrse cli network file_system)
+target_link_libraries(Vkyrse cli network file_system protocol)
