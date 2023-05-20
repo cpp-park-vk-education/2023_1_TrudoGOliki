@@ -40,7 +40,7 @@ class MockTree {
     void insert(const F::FID &fid, F::File &&file){};
     F::File *find(const F::FID &fid) {
         return new F::File{
-            "/home/vilin/Documents/grow/docker_na_praktike_15-50.pdf",
+            "/home/vilin/techno_park/2023_1_TrudoGOliki/build/yazyk_go.pdf",
             {"sdf", 10}};
     }
 };
@@ -58,6 +58,9 @@ class ManagerFilesNet {
     Buffer getBuf();
     size_t getSizeFileRead() const;
 
+    void createNewFileWrite(const F::FID &fid, const F::File &file);
+    void writeBuf(const Buffer &buf);
+
   private:
     size_t size_file_;
     std::fstream &f_stream_;
@@ -67,32 +70,35 @@ class ManagerFilesNet {
 
 class ManagerFilesCLI {
   public:
-    ManagerFilesCLI(const F::Path &name_main_dir);
-
     void addFile(const F::Path &path);
 
   private:
     F::File *processed_file_;
     F::FID file_fid;
-    F::Path path_main_dir_;
-
-    void createMainDir();
 
     F::FID calculFID(const F::Path &path_from);
 
-    void copyFile(const F::FID &fid, const F::Path &path_from);
+    void copyFile(const F::FID &fid, const F::Path &path_from,
+                  const F::Path &path_to);
 };
 
 class FileSystem {
   public:
-    FileSystem(std::fstream &f_stream);
+    FileSystem(std::fstream &f_stream, const std::string &name_main_dir);
     void selectNewReadFile(const F::FID &fid);
-    Buffer getBuf() { return manager_net_.getBuf(); }
-    size_t getSizeFileRead() const { return manager_net_.getSizeFileRead(); };
+    Buffer getBuf();
+    size_t getSizeFileRead() const;
+
+    void createNewFileWrite(const F::FID &fid, const F::FileInfo &info);
+    void writeBuf(const Buffer &buf);
 
   private:
     MockTree tree_;
     // ManagerFilesCLI manager_cli_;
     ManagerFilesNet manager_net_;
+
+    F::Path path_main_dir_;
+
+    void createMainDir();
 };
 }   // namespace fs

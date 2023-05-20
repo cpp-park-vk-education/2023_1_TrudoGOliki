@@ -29,6 +29,9 @@ void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
     f_stream_.exceptions(std::ios_base::badbit);
     try {
         f_stream_.open(path.string(), std::ios::binary | std::ios::in);
+        if (!f_stream_.is_open()) {
+            throw FSError("file not opened");
+        }
         updateSize();
         char buffer[STANDARD_BUFFER_SIZE];
     } catch (std::ios::failure &e) {
@@ -56,9 +59,37 @@ Buffer ManagerFilesNet::getBuf() {
     }
 }
 
-ManagerFilesCLI::ManagerFilesCLI(const F::Path &name_main_dir) {
-    const char *homePath = std::getenv("HOME");
-    path_main_dir_ = F::Path(homePath) / name_main_dir;
+// ManagerFileNet::createNewFileWrite() can throw FSError
+void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
+                                         const F::File &file) {
+    if (f_stream_.is_open()) {
+        f_stream_.close();
+    }
+
+    f_stream_.exceptions(std::ios_base::badbit);
+    size_file_ = file.info_.size_;
+    std::string path_str = file.path_.string();
+    // add insert in tree
+    try {
+        f_stream_.open(path_str, std::ios::binary | std::ios::out);
+        if (!f_stream_.is_open()) {
+            throw FSError("file not opened");
+        }
+
+        char buffer[STANDARD_BUFFER_SIZE];
+    } catch (std::ios::failure &e) {
+        throw FSError("in selectNewFileRead exception: " +
+                      static_cast<std::string>(e.what()));
+    }
+}
+
+void ManagerFilesNet::writeBuf(const Buffer &buf) {
+    auto t = f_stream_.tellp();
+    if (f_stream_.tellp() < size_file_) {
+        f_stream_.write(buf.buf_, buf.size_);
+    } else {
+        throw FSError("attempt write more than size of file ");
+    }
 }
 
 F::FID ManagerFilesCLI::calculFID(const F::Path &path_from) {
@@ -116,11 +147,11 @@ F::FID ManagerFilesCLI::calculFID(const F::Path &path_from) {
 };
 
 // ManagerFilesCLI::copyFile() can throw FSError
-void ManagerFilesCLI::copyFile(const F::FID &fid, const F::Path &path_from) {
+void ManagerFilesCLI::copyFile(const F::FID &fid, const F::Path &path_from,
+                               const F::Path &path_to) {
     std::ifstream in(path_from.string(), std::ios::binary);
 
-    F::Path path_to_file = path_main_dir_ / fid.string();
-    std::ofstream out(path_to_file.string(), std::ios::binary);
+    std::ofstream out(path_to.string(), std::ios::binary);
 
     char buffer[STANDARD_BUFFER_SIZE];
 
@@ -140,19 +171,21 @@ void ManagerFilesCLI::copyFile(const F::FID &fid, const F::Path &path_from) {
 };
 
 // addFile() can throw FSError
-void ManagerFilesCLI::addFile(const F::Path &path_from) {
-    try {
-        createMainDir();
-    } catch (std::exception &e) {
-        throw FSError("in addFile: " + static_cast<std::string>(e.what()));
-    }
+void ManagerFilesCLI::addFile(const F::Path &path_from){
 
     // calcul fid
     // copy file
 };
 
+FileSystem::FileSystem(std::fstream &f_stream, const std::string &name_main_dir)
+    : manager_net_(f_stream) {
+    const char *homePath = std::getenv("HOME");
+    path_main_dir_ = F::Path(homePath) / name_main_dir;
+    createMainDir();
+}
+
 // createMainDir() can throw FSError
-void ManagerFilesCLI::createMainDir() {
+void FileSystem::createMainDir() {
     if (!std::filesystem::exists(path_main_dir_)) {
         try {
             if (!std::filesystem::create_directory(path_main_dir_)) {
@@ -172,5 +205,23 @@ void FileSystem::selectNewReadFile(const F::FID &fid) {
     }
 }
 
-FileSystem::FileSystem(std::fstream &f_stream) : manager_net_(f_stream) {}
+Buffer FileSystem::getBuf() { return manager_net_.getBuf(); }
+
+size_t FileSystem::getSizeFileRead() const {
+    return manager_net_.getSizeFileRead();
+};
+
+void FileSystem::createNewFileWrite(const F::FID &fid,
+                                    const F::FileInfo &info) {
+    auto file = F::File();
+    file.info_ = info;
+    std::string extension = ".txt";   // from info later
+    file.path_ = path_main_dir_ / (fid.string() + extension);
+    return manager_net_.createNewFileWrite(fid, file);
+}
+
+void FileSystem::writeBuf(const Buffer &buf) {
+    return manager_net_.writeBuf(buf);
+}
+
 }   // namespace fs
