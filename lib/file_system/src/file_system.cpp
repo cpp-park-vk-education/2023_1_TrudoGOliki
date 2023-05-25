@@ -181,7 +181,8 @@ void ManagerFilesCLI::addFile(const F::Path &path_from,
     }
 };
 
-FileSystem::FileSystem(std::fstream &f_stream, const std::string &name_main_dir)
+FileSystem::FileSystem(std::fstream &f_stream,
+                       const std::string_view &name_main_dir)
     : manager_net_(f_stream) {
     const char *homePath = std::getenv("HOME");
     path_main_dir_ = F::Path(homePath) / name_main_dir;

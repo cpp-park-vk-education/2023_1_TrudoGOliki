@@ -75,7 +75,7 @@ class ManagerFilesCLI {
 
 class FileSystem {
   public:
-    FileSystem(std::fstream &f_stream, const std::string &name_main_dir);
+    FileSystem(std::fstream &f_stream, const std::string_view &name_main_dir);
     void selectNewReadFile(const F::FID &fid);
     buf::Buffer getBuf();
     size_t getSizeFileRead() const;
