@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     auto fid = fs::F::FID{"test"};
     auto file_info = fs::F::FileInfo{"asdfasdf", size};
     f_s.createNewFileWrite(fid, file_info);
-    fs::Buffer buf = f_s_1.getBuf();
+    buf::Buffer buf = f_s_1.getBuf();
     while (buf.buf_) {
         try {
             f_s.writeBuf(buf);

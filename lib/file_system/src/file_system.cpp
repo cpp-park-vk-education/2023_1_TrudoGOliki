@@ -36,25 +36,25 @@ void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
 
 size_t ManagerFilesNet::getSizeFileRead() const { return size_file_; }
 
-// ManagerFilesNet::getBuf() can throw FSError and return Buffer{buffer ==
+// ManagerFilesNet::getBuf() can throw FSError and return buf::Buffer{buf_ ==
 // nullptr and size_ = 0, when read of file done
-Buffer ManagerFilesNet::getBuf() {
+buf::Buffer ManagerFilesNet::getBuf() {
     try {
         if (f_stream_.tellg() < size_file_) {
-            Buffer buffer = Buffer(STANDARD_BUFFER_SIZE);
+            buf::Buffer buffer = buf::Buffer(STANDARD_BUFFER_SIZE);
             f_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
             auto remainder = f_stream_.gcount();
             if (remainder == 0) {
-                return Buffer(0);
+                return buf::Buffer(0);
             }
             if (remainder < 0) {
                 throw FSError("BLLL");
             }
             std::cout << "in read buf" << remainder << std::endl;
             buffer.size_ = static_cast<size_t>(remainder);
-            return buffer;
+            return std::move(buffer);
         }
-        return Buffer(0);
+        return buf::Buffer(0);
     } catch (std::ios::failure &e) {
         throw FSError("in getBuf exception: " +
                       static_cast<std::string>(e.what()));
@@ -82,7 +82,7 @@ void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
     }
 }
 
-void ManagerFilesNet::writeBuf(const Buffer &buf) {
+void ManagerFilesNet::writeBuf(const buf::Buffer &buf) {
     if (f_stream_.tellp() < size_file_) {
         f_stream_.write(buf.buf_, buf.size_);
     } else {
@@ -165,12 +165,6 @@ void ManagerFilesCLI::copyFile(const F::FID &fid, const F::Path &path_from,
         }
         out.write(buffer, remainder);
     }
-
-    // if (auto remainder = in.gcount(); remainder > 0) {
-    //     for (size_t i = 0; i < remainder; i++) {
-    //         out.write(buffer, remainder);
-    //     }
-    // }
 };
 
 // addFile() can throw FSError
@@ -208,7 +202,7 @@ void FileSystem::selectNewReadFile(const F::FID &fid) {
     }
 }
 
-Buffer FileSystem::getBuf() { return manager_net_.getBuf(); }
+buf::Buffer FileSystem::getBuf() { return manager_net_.getBuf(); }
 
 size_t FileSystem::getSizeFileRead() const {
     return manager_net_.getSizeFileRead();
@@ -234,7 +228,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
     }
 }
 
-void FileSystem::writeBuf(const Buffer &buf) {
+void FileSystem::writeBuf(const buf::Buffer &buf) {
     return manager_net_.writeBuf(buf);
 }
 
