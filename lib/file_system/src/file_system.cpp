@@ -50,7 +50,7 @@ buf::Buffer ManagerFilesNet::getBuf() {
             if (remainder < 0) {
                 throw FSError("BLLL");
             }
-            std::cout << "in read buf" << remainder << std::endl;
+            std::cout << "in read buf " << remainder << std::endl;
             buffer.size_ = static_cast<size_t>(remainder);
             return std::move(buffer);
         }
