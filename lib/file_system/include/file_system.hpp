@@ -11,7 +11,7 @@
 #include "sha256.hpp"
 
 namespace fs {
-inline constexpr uint16_t STANDARD_BUFFER_SIZE = 4096;
+inline constexpr uint16_t STANDARD_BUFFER_SIZE = 1024;
 inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
 
 class FSError : public std::runtime_error {
@@ -46,6 +46,35 @@ class MockTree {
 };
 
 struct Buffer {
+    explicit Buffer(size_t size) : size_(size) {
+        if (size == 0) {
+            buf_ = nullptr;
+        } else {
+            buf_ = new char[size];
+        }
+    };
+    Buffer(const Buffer &other)
+        : buf_(new char[other.size_]), size_(other.size_) {
+        copyBuf(other.buf_, this->buf_, other.size_);
+    };
+    Buffer &operator=(const Buffer &other) {
+        if (this != &other) {
+            char *tmp = new char[other.size_];
+            copyBuf(other.buf_, tmp, other.size_);
+            delete[] buf_;
+
+            buf_ = tmp;
+            size_ = other.size_;
+        }
+        return *this;
+    };
+    ~Buffer() { delete[] buf_; }
+
+    void copyBuf(char *buf1, char *buf2, size_t count) {
+        for (int i = 0; i < count; i++) {
+            buf2[i] = buf1[i];
+        }
+    };
     char *buf_;
     size_t size_;
 };
@@ -72,14 +101,14 @@ class ManagerFilesCLI {
   public:
     void addFile(const F::Path &path);
 
+    void copyFile(const F::FID &fid, const F::Path &path_from,
+                  const F::Path &path_to);
+
   private:
     F::File *processed_file_;
     F::FID file_fid;
 
     F::FID calculFID(const F::Path &path_from);
-
-    void copyFile(const F::FID &fid, const F::Path &path_from,
-                  const F::Path &path_to);
 };
 
 class FileSystem {
@@ -92,10 +121,11 @@ class FileSystem {
     void createNewFileWrite(const F::FID &fid, const F::FileInfo &info);
     void writeBuf(const Buffer &buf);
 
+    ManagerFilesCLI manager_cli_;
+
   private:
     MockTree tree_;
     AVLTreeSearch tree2_;
-    // ManagerFilesCLI manager_cli_;
     ManagerFilesNet manager_net_;
 
     F::Path path_main_dir_;

@@ -3,11 +3,7 @@
 namespace fs {
 // insert can throw AVLT::AVLError
 void AVLTreeSearch::insert(const F::FID &fid, F::File &&file) {
-    try {
-        AVLTree::insert(fid, std::move(file));
-    } catch (AVLT::AVLError &e) {
-        throw;
-    }
+    AVLTree::insert(fid, std::move(file));
 };
 
 void AVLTreeSearch::erase(const F::FID &fid) { AVLTree::erase(fid); };
@@ -26,14 +22,12 @@ void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
         f_stream_.close();
     }
 
-    f_stream_.exceptions(std::ios_base::badbit);
     try {
         f_stream_.open(path.string(), std::ios::binary | std::ios::in);
         if (!f_stream_.is_open()) {
             throw FSError("file not opened");
         }
         updateSize();
-        char buffer[STANDARD_BUFFER_SIZE];
     } catch (std::ios::failure &e) {
         throw FSError("in selectNewFileRead exception: " +
                       static_cast<std::string>(e.what()));
@@ -42,17 +36,25 @@ void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
 
 size_t ManagerFilesNet::getSizeFileRead() const { return size_file_; }
 
-// ManagerFilesNet::getBuf() can throw FSError
+// ManagerFilesNet::getBuf() can throw FSError and return Buffer{buffer ==
+// nullptr and size_ = 0, when read of file done
 Buffer ManagerFilesNet::getBuf() {
     try {
-        char buffer[STANDARD_BUFFER_SIZE];
-        f_stream_.read(buffer, STANDARD_BUFFER_SIZE);
-        auto remainder = f_stream_.gcount();
-        if (remainder < 0) {
-            throw FSError("gcount() return negative value");
+        if (f_stream_.tellg() < size_file_) {
+            Buffer buffer = Buffer(STANDARD_BUFFER_SIZE);
+            f_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
+            auto remainder = f_stream_.gcount();
+            if (remainder == 0) {
+                return Buffer(0);
+            }
+            if (remainder < 0) {
+                throw FSError("BLLL");
+            }
+            std::cout << "in read buf" << remainder << std::endl;
+            buffer.size_ = static_cast<size_t>(remainder);
+            return buffer;
         }
-
-        return Buffer{buffer, static_cast<size_t>(remainder)};
+        return Buffer(0);
     } catch (std::ios::failure &e) {
         throw FSError("in getBuf exception: " +
                       static_cast<std::string>(e.what()));
@@ -66,7 +68,6 @@ void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
         f_stream_.close();
     }
 
-    f_stream_.exceptions(std::ios_base::badbit);
     size_file_ = file.info_.size_;
     std::string path_str = file.path_.string();
     // add insert in tree
@@ -75,8 +76,6 @@ void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
         if (!f_stream_.is_open()) {
             throw FSError("file not opened");
         }
-
-        char buffer[STANDARD_BUFFER_SIZE];
     } catch (std::ios::failure &e) {
         throw FSError("in selectNewFileRead exception: " +
                       static_cast<std::string>(e.what()));
@@ -84,7 +83,6 @@ void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
 }
 
 void ManagerFilesNet::writeBuf(const Buffer &buf) {
-    auto t = f_stream_.tellp();
     if (f_stream_.tellp() < size_file_) {
         f_stream_.write(buf.buf_, buf.size_);
     } else {
@@ -159,15 +157,20 @@ void ManagerFilesCLI::copyFile(const F::FID &fid, const F::Path &path_from,
         throw FSError("in copyFile: can`t open in or out");
     }
 
-    while (in.read(buffer, STANDARD_BUFFER_SIZE)) {
-        out.write(buffer, STANDARD_BUFFER_SIZE);
+    while (true) {
+        in.read(buffer, STANDARD_BUFFER_SIZE);
+        auto remainder = in.gcount();
+        if (remainder == 0) {
+            break;
+        }
+        out.write(buffer, remainder);
     }
 
-    if (auto remainder = in.gcount(); remainder > 0) {
-        for (size_t i = 0; i < remainder; i++) {
-            out.write(buffer, remainder);
-        }
-    }
+    // if (auto remainder = in.gcount(); remainder > 0) {
+    //     for (size_t i = 0; i < remainder; i++) {
+    //         out.write(buffer, remainder);
+    //     }
+    // }
 };
 
 // addFile() can throw FSError
@@ -221,7 +224,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
         }
         auto file = new F::File();
         file->info_ = info;
-        std::string extension = ".txt";   // from info later
+        std::string extension = "";   // from info later
         file->path_ = path_main_dir_ / (fid.string() + extension);
         manager_net_.createNewFileWrite(fid, *file);
         tree2_.insert(fid, std::move(*file));

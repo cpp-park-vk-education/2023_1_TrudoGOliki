@@ -4,6 +4,7 @@ project(Vkyrse VERSION 0.1.0)
 enable_testing()
 find_package(GTest REQUIRED)
 include(GoogleTest)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall")
 
 # add_subdirectory(lib/cli)
 # add_subdirectory(lib/network)
