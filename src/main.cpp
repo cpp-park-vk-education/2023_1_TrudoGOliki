@@ -9,15 +9,10 @@ int main(int argc, char *argv[]) {
         fs::F::Path("/home/vilin/Pictures/"
                     "imgonline-com-ua-GifAnimationTwoPic-u1BuW6Xz9gFp.gif"),
         "its my file");
+    // f_s.eraseFile(fid);
     f_s.selectNewReadFile(fid);
     auto size = f_s.getSizeFileRead();
-    // auto file_base = std::fstream();
 
-    // auto f_s =
-    //     fs::FileSystem(file_base, "techno_park/2023_1_TrudoGOliki/build");
-    // auto fid = fs::F::FID{"test"};
-    // auto file_info = fs::F::FileInfo{"asdfasdf", size};
-    // f_s.createNewFileWrite(fid, file_info);
     buf::Buffer buf = f_s.getBuf();
     size_t cur_size = 0;
     while (buf.buf_) {

@@ -69,6 +69,8 @@ class ManagerFilesCLI {
 
     F::FID calculFID(const F::Path &path_from);
 
+    void eraseFile(const F::Path &path_to);
+
   private:
     void copyFile(const F::Path &path_from, const F::Path &path_to);
 };
@@ -84,6 +86,8 @@ class FileSystem {
     void writeBuf(const buf::Buffer &buf);
 
     F::FID addFile(const F::Path &path_from, const std::string &description);
+
+    void eraseFile(const F::FID &fid);
 
   private:
     // MockTree tree_;

@@ -73,7 +73,6 @@ void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
 
     size_file_ = file.info_.size_;
     std::string path_str = file.path_.string();
-    // add insert in tree
     try {
         f_stream_.open(path_str, std::ios::binary | std::ios::out);
         if (!f_stream_.is_open()) {
@@ -181,6 +180,25 @@ void ManagerFilesCLI::addFile(const F::Path &path_from,
     }
 };
 
+// ManagerFilesCLI::eraseFile() can throw FSError
+void ManagerFilesCLI::eraseFile(const F::Path &path_to) {
+    if (std::remove(path_to.string().c_str()) != 0) {
+        throw FSError("in eraseFile: can`t remove");
+    }
+}
+
+// FileSystem::eraseFile() can throw FSError
+void FileSystem::eraseFile(const F::FID &fid) {
+    auto file = tree_.find(fid);
+    if (file) {
+        manager_cli_.eraseFile(file->path_);
+        tree_.erase(fid);
+    } else {
+        throw FSError("in eraseFile: can`t erase file with fid: " +
+                      fid.string());
+    }
+}
+
 FileSystem::FileSystem(std::fstream &f_stream,
                        const std::string_view &name_main_dir)
     : manager_net_(f_stream) {
@@ -207,6 +225,11 @@ F::FID FileSystem::addFile(const F::Path &path_from,
                            const std::string &description) {
     try {
         F::FID fid = manager_cli_.calculFID(path_from);
+        F::File *find_file = tree_.find(fid);
+        if (find_file) {
+            throw FSError("file with FID: " + fid.string() + " already exist");
+        }
+
         auto path_to = path_main_dir_ / F::Path(fid.hash_);
         manager_cli_.addFile(path_from, path_to);
         auto file = new F::File();
@@ -223,10 +246,14 @@ F::FID FileSystem::addFile(const F::Path &path_from,
     }
 }
 
+// FileSystem::selectNewReadFile() can throw FSError
 void FileSystem::selectNewReadFile(const F::FID &fid) {
     F::File *file = tree_.find(fid);
     if (file) {
         manager_net_.selectNewFileRead(file->path_);
+    } else {
+        throw FSError("in selectNewReadFile: can`t select file with fid: " +
+                      fid.string());
     }
 }
 
@@ -242,7 +269,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
     try {
         F::File *find_file = tree_.find(fid);
         if (find_file) {
-            throw FSError("file with FID: " + fid.string() + "already exist");
+            throw FSError("file with FID: " + fid.string() + " already exist");
         }
         auto file = new F::File();
         file->info_ = info;
