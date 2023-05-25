@@ -30,7 +30,7 @@ class AVLTree {
       public:
         TreeNode(const Key &key, Value &&val)
             : key_(key), left_(nullptr), right_(nullptr), height_(1) {
-            std::exchange(val, Value());
+            val_ = std::exchange(val, Value());
         };
         const Key key_;
         Value val_;
