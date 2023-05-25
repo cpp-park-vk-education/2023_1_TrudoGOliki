@@ -55,7 +55,7 @@ buf::Buffer Connection::read(size_t len) {
     // for (size_t j = 0; j < len; ++j) {
     //     std::cout << buf[j];
     // }
-    return std::move(buf);
+    return buf;
 }
 
 void Connection::write_str(const std::string &str) {

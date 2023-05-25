@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(PROTOCOL_Lib)
 
 set(HEADERS include/protocol.hpp)
-set(SOURCES src/protocol.cpp)
+set(SOURCES src/protocol.cpp src/aplication.cpp)
 
 
 add_compile_options(-Wall -Wextra)

@@ -18,23 +18,20 @@ void ShareFile::SetOption(const Option &o) {
 }
 //------------------START YOUR IMPLEMENTATION------------------//
 
-ShareFile::ShareFile() {
+HideFile::HideFile() {
     Opt0Handler = handler<OptSetFunc>{
         {OPT0_HELP, [](const Option &o) { std::cout << o.flag << "\n"; }},
     };
     Opt1Handler = handler<OptSetFunc>{
-        {OPT1_PATH,
-         [this](const Option &o) {
-             if (o.argument.has_value())
-                 description = o.argument.value();
-         }},
+        {OPT1_PATH, [](const Option &o) { std::cout << o.flag << "\n"; }},
+        {OPT1_ADD, [](const Option &o) { std::cout << o.flag << "\n"; }},
     };
 }
 
-void ShareFile::Execute(const Command &c) {
+void HideFile::Execute(const Command &c) {
     if (c.object.has_value()) {
         std::cout << c.cmd_title << " " << c.object.value() << '\n';
-        path = c.object.value();
+        FID = c.object.value();
     } else
         throw std::runtime_error{"error object for this cmd in cmd.execute()"};
 }

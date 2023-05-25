@@ -3,62 +3,46 @@
 
 #include <iostream>
 
-// SendFile can throw fs::FSError
-void Protocol::SendFile(std::string_view path, std::string_view ip) {
-    auto file_base = std::fstream();
+buf::Buffer Data::serialize() {
 
-    auto f_s = fs::FileSystem(file_base, std::string{fs::NAME_MAIN_DIR});
-    auto fid = fs::F::FID{std::string{path}};
+    if (type_file.length() > 255)
+        throw std::runtime_error("type file _field_ byte size is too big");
 
-    f_s.selectNewReadFile(fid);
-    size_t size = f_s.getSizeFileRead();
-    std::cout << "SIZE in send" << size;
-    Connection con{SocketAddress{std::string{ip}, 8080, INADDR_LOOPBACK}};
-    std::cout << "start work" << std::endl;
-    size_t cur_size = 0;
-    buf::Buffer buf = f_s.getBuf();
-    while (buf.buf_) {
-        con.write(buf.buf_, buf.size_);
-        cur_size += buf.size_;
-        std::cout << "work" << buf.size_ << std::endl;
-        buf = f_s.getBuf();
-    }
-    if (cur_size != size) {
-        throw std::runtime_error("in SendFile: read not full file " +
-                                 std::to_string(cur_size) +
-                                 " != " + std::to_string(size));
+    if (fid.length() > 255)
+        throw std::runtime_error("fid _field_ byte size is too big");
+
+    auto buf =
+        buf::Buffer(sizeof(len_file) + type_file.length() + fid.length() + 2);
+    size_t ind = 0;
+    for (size_t i = 0; i < sizeof(len_file); ++i) {
+        buf.buf_[ind++] = *((char *) &len_file + i);
     }
 
-    std::cout << "end work";
-};
-
-void Protocol::ReciveFile(int fd, fs::FileSystem &f_s) {
-    Socket s{fd};
-    Connection connection{std::move(s)};
-
-    auto fid = fs::F::FID{"aaaa"};
-    auto file_info = fs::F::FileInfo{"asdfasdf", 7356};
-    std::cout << "SIZE in Recive before" << file_info.size_;
-    f_s.createNewFileWrite(fid, file_info);
-    size_t cur_size = 0;
-    for (; cur_size < file_info.size_;) {
-        size_t cur_read_count =
-            (file_info.size_ - cur_size) < fs::STANDARD_BUFFER_SIZE
-                ? file_info.size_ - cur_size
-                : fs::STANDARD_BUFFER_SIZE;
-        buf::Buffer data = connection.read(cur_read_count);
-        if (data.buf_) {
-            f_s.writeBuf(data);
-            std::cout << "Write " << data.size_;
-            cur_size += cur_read_count;
-        }
-    }
-    std::cout << "SIZE CUR in Recive " << cur_size;
-    if (cur_size != file_info.size_) {
-        throw std::runtime_error("in ReciveFile: cur_size != expexted size " +
-                                 std::to_string(cur_size) +
-                                 " != " + std::to_string(file_info.size_));
+    buf.buf_[ind++] = type_file.length();
+    for (size_t i = 0; i < type_file.length(); ++i) {
+        buf.buf_[ind++] = type_file[i];
     }
 
-    std::cout << "end recieve\n";
+    buf.buf_[ind++] = fid.length();
+    for (size_t i = 0; i < fid.length(); ++i) {
+        buf.buf_[ind++] = fid[i];
+    }
+    return buf;
+}
+
+Data::Data(buf::Buffer buf) {
+    size_t ind = 0;
+    for (size_t i = 0; i < sizeof(len_file); ++i) {
+        *((char *) &len_file + i) = buf.buf_[ind++];
+    }
+
+    type_file.resize(buf.buf_[ind++]);
+    for (size_t i = 0; i < type_file.length(); ++i) {
+        type_file[i] = buf.buf_[ind++];
+    }
+
+    fid.resize(buf.buf_[ind++]);
+    for (size_t i = 0; i < fid.length(); ++i) {
+        fid[i] = buf.buf_[ind++];
+    }
 }

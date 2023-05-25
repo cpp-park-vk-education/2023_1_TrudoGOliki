@@ -31,3 +31,5 @@ constexpr std::string_view CMD0_fff{"fff"};
 
 constexpr std::string_view CMD1_LOOKFILE{"lookfile"};
 constexpr std::string_view CMD1_SHAREFILE{"sharefile"};
+constexpr std::string_view CMD1_HIDEFILE{"hidefile"};
+constexpr std::string_view CMD1_STATUS{"status"};

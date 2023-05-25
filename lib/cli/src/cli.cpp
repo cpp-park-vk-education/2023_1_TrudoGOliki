@@ -10,14 +10,18 @@
 
 CLI::CLI() {
     Help Help_;
+    Status Status_;
     LookFile LookFile_;
     ShareFile ShareFile_;
+    HideFile HideFile_;
     // IExecutablePtr ex = std::make_shared<LookFile>(LookFile_);
 
     CmdHandler = handler<IExecutablePtr>{
         {CMD0_HELP, std::make_shared<Help>(Help_)},
+        {CMD0_HELP, std::make_shared<Status>(Status_)},
         {CMD1_LOOKFILE, std::make_shared<LookFile>(LookFile_)},
         {CMD1_SHAREFILE, std::make_shared<ShareFile>(ShareFile_)},
+        {CMD0_HELP, std::make_shared<HideFile>(HideFile_)},
         // ex,
     };
 

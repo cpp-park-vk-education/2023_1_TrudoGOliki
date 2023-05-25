@@ -47,6 +47,38 @@ class ShareFile : public IExecutable {
     handler<OptSetFunc> Opt1Handler;
 
     // START usable data field //
+    std::string_view path;
+    std::string_view description;
+    // END usable data field //
+};
+
+//----------------HideFile----------------//
+class HideFile : public IExecutable {
+  public:
+    HideFile();
+    void Execute(const Command &c) override;
+    void SetOption(const Option &o) override;
+
+  private:
+    handler<OptSetFunc> Opt0Handler;
+    handler<OptSetFunc> Opt1Handler;
+
+    // START usable data field //
     std::string_view FID;
+    // END usable data field //
+};
+
+//----------------Status----------------//
+class Status : public IExecutable {
+  public:
+    Status();
+    void Execute(const Command &c) override;
+    void SetOption(const Option &o) override;
+
+  private:
+    handler<OptSetFunc> Opt0Handler;
+    handler<OptSetFunc> Opt1Handler;
+
+    // START usable data field //
     // END usable data field //
 };
