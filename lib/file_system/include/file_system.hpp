@@ -35,15 +35,15 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
     F::File *find(const F::FID &fid);
 };
 
-class MockTree {
-  public:
-    void insert(const F::FID &fid, F::File &&file){};
-    F::File *find(const F::FID &fid) {
-        return new F::File{
-            "/home/vilin/techno_park/2023_1_TrudoGOliki/build/yazyk_go.pdf",
-            {"sdf", 10}};
-    }
-};
+// class MockTree {
+//   public:
+//     void insert(const F::FID &fid, F::File &&file){};
+//     F::File *find(const F::FID &fid) {
+//         return new F::File{
+//             "/home/vilin/techno_park/2023_1_TrudoGOliki/build/yazyk_go.pdf",
+//             {"sdf", 10}};
+//     }
+// };
 
 class ManagerFilesNet {
   public:
@@ -65,16 +65,12 @@ class ManagerFilesNet {
 
 class ManagerFilesCLI {
   public:
-    void addFile(const F::Path &path);
-
-    void copyFile(const F::FID &fid, const F::Path &path_from,
-                  const F::Path &path_to);
-
-  private:
-    F::File *processed_file_;
-    F::FID file_fid;
+    void addFile(const F::Path &path_from, const F::Path &path_to);
 
     F::FID calculFID(const F::Path &path_from);
+
+  private:
+    void copyFile(const F::Path &path_from, const F::Path &path_to);
 };
 
 class FileSystem {
@@ -87,12 +83,13 @@ class FileSystem {
     void createNewFileWrite(const F::FID &fid, const F::FileInfo &info);
     void writeBuf(const buf::Buffer &buf);
 
-    ManagerFilesCLI manager_cli_;
+    F::FID addFile(const F::Path &path_from, const std::string &description);
 
   private:
-    MockTree tree_;
-    AVLTreeSearch tree2_;
+    // MockTree tree_;
+    AVLTreeSearch tree_;
     ManagerFilesNet manager_net_;
+    ManagerFilesCLI manager_cli_;
 
     F::Path path_main_dir_;
 
