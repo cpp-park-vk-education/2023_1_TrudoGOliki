@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void Help::SetOption(const Option &o) {
+void Status::SetOption(const Option &o) {
 
     if (!o.argument.has_value()) {
         if (auto handler = Opt0Handler.find(o.flag);

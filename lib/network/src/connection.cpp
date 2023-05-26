@@ -46,6 +46,7 @@ buf::Buffer Connection::read(size_t len) {
     auto buf = buf::Buffer(len);
 
     ssize_t result = ::recv(socket_.get(), buf.buf_, len, 0);
+    std::cout << "REsult " << result << std::endl;
     if (result < 0) {
         using namespace std::string_literals;
         throw std::runtime_error("Error reading message"s +
