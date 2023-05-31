@@ -177,15 +177,25 @@ class AVLTree {
             return node;
         }
 
+        std::stack<TreeNode *> stack_balance;
         TreeNode *prev_node = node;
         TreeNode *cur_node = node->left_;
+        stack_balance.push(prev_node);
         while (cur_node->left_) {
-            cur_node = cur_node->left_;
             prev_node = cur_node;
+            cur_node = cur_node->left_;
+            stack_balance.push(prev_node);
         }
 
         prev_node->left_ = cur_node->right_;
         cur_node->right_ = node;
+
+        while (!stack_balance.empty()) {
+            TreeNode *tmp = stack_balance.top();
+            stack_balance.pop();
+            balance(tmp);
+        }
+
         return cur_node;
     };
 
