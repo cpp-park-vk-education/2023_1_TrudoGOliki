@@ -3,22 +3,17 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <string_view>
 
 #include "avl_tree.hpp"
 #include "buffer.hpp"
+#include "constants.hpp"
+#include "errors.hpp"
 #include "file.hpp"
+#include "manager_files_cli.hpp"
 #include "sha256.hpp"
 
 namespace fs {
-inline constexpr uint16_t STANDARD_BUFFER_SIZE = 1024;
-inline constexpr std::string_view NAME_MAIN_DIR = ".main_dir";
-
-class FSError : public std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
-
-namespace F = file_for_fs;
+namespace F = file_fs;
 namespace AVLT = avl_tree;
 
 // class ITreeSearchFiles {
@@ -34,16 +29,6 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
     void erase(const F::FID &fid);
     F::File *find(const F::FID &fid);
 };
-
-// class MockTree {
-//   public:
-//     void insert(const F::FID &fid, F::File &&file){};
-//     F::File *find(const F::FID &fid) {
-//         return new F::File{
-//             "/home/vilin/techno_park/2023_1_TrudoGOliki/build/yazyk_go.pdf",
-//             {"sdf", 10}};
-//     }
-// };
 
 class ManagerFilesNet {
   public:
@@ -63,21 +48,10 @@ class ManagerFilesNet {
     void updateSize();
 };
 
-class ManagerFilesCLI {
-  public:
-    void addFile(const F::Path &path_from, const F::Path &path_to);
-
-    F::FID calculFID(const F::Path &path_from);
-
-    void eraseFile(const F::Path &path_to);
-
-  private:
-    void copyFile(const F::Path &path_from, const F::Path &path_to);
-};
-
 class FileSystem {
   public:
     FileSystem(std::fstream &f_stream, const std::string_view &name_main_dir);
+
     void selectNewReadFile(const F::FID &fid);
     buf::Buffer getBuf();
     size_t getSizeFileRead() const;
@@ -87,10 +61,13 @@ class FileSystem {
 
     F::FID addFile(const F::Path &path_from, const std::string &description);
 
+    // eraseFile() do nothing if file with fid not exist in FileSystem
     void eraseFile(const F::FID &fid);
 
+    // find() return nullptr if file with fid not exist
+    F::File *find(const F::FID &fid);
+
   private:
-    // MockTree tree_;
     AVLTreeSearch tree_;
     ManagerFilesNet manager_net_;
     ManagerFilesCLI manager_cli_;

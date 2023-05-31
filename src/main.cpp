@@ -6,10 +6,9 @@ int main(int argc, char *argv[]) {
     auto file_base = std::fstream();
     auto f_s = fs::FileSystem(file_base, fs::NAME_MAIN_DIR);
     auto fid = f_s.addFile(
-        fs::F::Path("/home/vilin/Pictures/"
-                    "imgonline-com-ua-GifAnimationTwoPic-u1BuW6Xz9gFp.gif"),
+        fs::F::Path("/home/vilin/techno_park/2023_1_TrudoGOliki/lib/"
+                    "file_system/lib/avl_tree/include/avl_tree.hpp"),
         "its my file");
-    // f_s.eraseFile(fid);
     f_s.selectNewReadFile(fid);
     auto size = f_s.getSizeFileRead();
 

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace file_for_fs {
+namespace file_fs {
 using Path = std::filesystem::path;
 
 struct FID {
@@ -30,4 +30,4 @@ class File {
   private:
 };
 
-}   // namespace file_for_fs
+}   // namespace file_fs
