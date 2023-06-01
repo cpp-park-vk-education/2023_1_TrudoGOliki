@@ -10,7 +10,7 @@ int main() {
         "its my file");
     f_s.selectNewReadFile(fid);
     auto size = f_s.getSizeFileRead();
-    f_s.createNewFileWrite(file_fs::FID(),
+    f_s.createNewFileWrite(file_fs::FID{"a"},
                            file_fs::FileInfo{"description", size});
 
     buf::Buffer buf = f_s.getBuf();

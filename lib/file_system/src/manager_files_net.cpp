@@ -5,6 +5,8 @@
 #include "manager_files_net.hpp"
 
 namespace fs {
+IReaderNet::~IReaderNet() = default;
+
 // WriterNet::createNewFileWrite() can throw FSError
 void WriterNet::createNewFileWrite(const file_fs::FID &fid,
                                    const file_fs::File &file) {
@@ -37,15 +39,18 @@ void WriterNet::writeBuf(const buf::Buffer &buf) {
     }
 };
 
+ReaderNet::ReaderNet() : size_file_(0){};
+ReaderNet::~ReaderNet() = default;
+
 // ReaderNet::selectNewFileRead() can throw FSError
 void ReaderNet::selectNewFileRead(const file_fs::Path &path) {
-    if (f_stream_.is_open()) {
+    if (if_stream_.is_open()) {
         throw FSError("in selectNewFileRead: another file already open");
     }
 
     try {
-        f_stream_.open(path.string(), std::ios::binary | std::ios::in);
-        if (!f_stream_.is_open()) {
+        if_stream_.open(path.string(), std::ios::binary | std::ios::in);
+        if (!if_stream_.is_open()) {
             throw FSError("file not opened");
         }
     } catch (std::ios::failure &e) {
@@ -58,10 +63,10 @@ void ReaderNet::selectNewFileRead(const file_fs::Path &path) {
 // nullptr and size_ = 0, when read of file done
 buf::Buffer ReaderNet::getBuf() {
     try {
-        if (f_stream_.tellg() < size_file_) {
+        if (if_stream_.tellg() < size_file_) {
             buf::Buffer buffer = buf::Buffer(STANDARD_BUFFER_SIZE);
-            f_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
-            auto remainder = f_stream_.gcount();
+            if_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
+            auto remainder = if_stream_.gcount();
             if (remainder == 0) {
                 return buf::Buffer(0);
             }
@@ -73,8 +78,8 @@ buf::Buffer ReaderNet::getBuf() {
 
             return buffer;
         }
-        if (f_stream_.eof()) {
-            f_stream_.close();
+        if (if_stream_.eof()) {
+            if_stream_.close();
         }
         return buf::Buffer(0);
     } catch (std::ios::failure &e) {
@@ -86,5 +91,7 @@ buf::Buffer ReaderNet::getBuf() {
 void ReaderNet::setSizeRead(size_t size) { size_file_ = size; };
 
 size_t ReaderNet::getSizeFileRead() const { return size_file_; }
+
+ManagerFilesNet::ManagerFilesNet() : reader_(std::make_unique<ReaderNet>()){};
 
 }   // namespace fs

@@ -80,19 +80,19 @@ void FileSystem::selectNewReadFile(const F::FID &fid) {
     F::File *file = tree_.find(fid);
     if (file) {
         std::fstream check_size(file->path_);
-        manager_net_.reader_.setSizeRead(getSizeOfFile(check_size));
+        manager_net_.reader_->setSizeRead(getSizeOfFile(check_size));
         check_size.close();
-        manager_net_.reader_.selectNewFileRead(file->path_);
+        manager_net_.reader_->selectNewFileRead(file->path_);
     } else {
         throw FSError("in selectNewReadFile: can`t select file with fid: " +
                       fid.string());
     }
 }
 
-buf::Buffer FileSystem::getBuf() { return manager_net_.reader_.getBuf(); }
+buf::Buffer FileSystem::getBuf() { return manager_net_.reader_->getBuf(); }
 
 size_t FileSystem::getSizeFileRead() const {
-    return manager_net_.reader_.getSizeFileRead();
+    return manager_net_.reader_->getSizeFileRead();
 };
 
 // FileSystem::createNewFileWrite() can throw FSError
