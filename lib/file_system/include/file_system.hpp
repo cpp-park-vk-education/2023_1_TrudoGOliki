@@ -10,6 +10,7 @@
 #include "errors.hpp"
 #include "file.hpp"
 #include "manager_files_cli.hpp"
+#include "manager_files_net.hpp"
 #include "sha256.hpp"
 
 namespace fs {
@@ -28,24 +29,6 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
     void insert(const F::FID &fid, F::File &&file);
     void erase(const F::FID &fid);
     F::File *find(const F::FID &fid);
-};
-
-class ManagerFilesNet {
-  public:
-    ManagerFilesNet(std::fstream &f_stream) : f_stream_(f_stream){};
-
-    void selectNewFileRead(const F::Path &path);
-    buf::Buffer getBuf();
-    size_t getSizeFileRead() const;
-
-    void createNewFileWrite(const F::FID &fid, const F::File &file);
-    void writeBuf(const buf::Buffer &buf);
-
-  private:
-    size_t size_file_;
-    std::fstream &f_stream_;
-
-    void updateSize();
 };
 
 class FileSystem {

@@ -17,81 +17,6 @@ void AVLTreeSearch::erase(const F::FID &fid) { AVLTree::erase(fid); };
 
 F::File *AVLTreeSearch::find(const F::FID &fid) { return AVLTree::find(fid); };
 
-void ManagerFilesNet::updateSize() { size_file_ = getSizeOfFile(f_stream_); };
-
-// ManagerFilesNet::selectNewFileRead() can throw FSError
-void ManagerFilesNet::selectNewFileRead(const F::Path &path) {
-    if (f_stream_.is_open()) {
-        f_stream_.close();
-    }
-
-    try {
-        f_stream_.open(path.string(), std::ios::binary | std::ios::in);
-        if (!f_stream_.is_open()) {
-            throw FSError("file not opened");
-        }
-        updateSize();
-    } catch (std::ios::failure &e) {
-        throw FSError("in selectNewFileRead exception: " +
-                      static_cast<std::string>(e.what()));
-    }
-}
-
-size_t ManagerFilesNet::getSizeFileRead() const { return size_file_; }
-
-// ManagerFilesNet::getBuf() can throw FSError and return buf::Buffer{buf_ ==
-// nullptr and size_ = 0, when read of file done
-buf::Buffer ManagerFilesNet::getBuf() {
-    try {
-        if (f_stream_.tellg() < size_file_) {
-            buf::Buffer buffer = buf::Buffer(STANDARD_BUFFER_SIZE);
-            f_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
-            auto remainder = f_stream_.gcount();
-            if (remainder == 0) {
-                return buf::Buffer(0);
-            }
-            if (remainder < 0) {
-                throw FSError("BLLL");
-            }
-            std::cout << "in read buf" << remainder << std::endl;
-            buffer.size_ = static_cast<size_t>(remainder);
-            return std::move(buffer);
-        }
-        return buf::Buffer(0);
-    } catch (std::ios::failure &e) {
-        throw FSError("in getBuf exception: " +
-                      static_cast<std::string>(e.what()));
-    }
-}
-
-// ManagerFileNet::createNewFileWrite() can throw FSError
-void ManagerFilesNet::createNewFileWrite(const F::FID &fid,
-                                         const F::File &file) {
-    if (f_stream_.is_open()) {
-        f_stream_.close();
-    }
-
-    size_file_ = file.info_.size_;
-    std::string path_str = file.path_.string();
-    try {
-        f_stream_.open(path_str, std::ios::binary | std::ios::out);
-        if (!f_stream_.is_open()) {
-            throw FSError("file not opened");
-        }
-    } catch (std::ios::failure &e) {
-        throw FSError("in selectNewFileRead exception: " +
-                      static_cast<std::string>(e.what()));
-    }
-}
-
-void ManagerFilesNet::writeBuf(const buf::Buffer &buf) {
-    if (f_stream_.tellp() < size_file_) {
-        f_stream_.write(buf.buf_, buf.size_);
-    } else {
-        throw FSError("attempt write more than size of file ");
-    }
-}
-
 // FileSystem::eraseFile() can throw FSError
 void FileSystem::eraseFile(const F::FID &fid) {
     auto file = tree_.find(fid);
@@ -142,6 +67,7 @@ F::FID FileSystem::addFile(const F::Path &path_from,
 
         std::fstream file_stream(path_to);
         size_t size = getSizeOfFile(file_stream);
+        file_stream.close();
         file->info_.size_ = size;
         file->path_ = path_to;
         tree_.insert(fid, std::move(*file));
@@ -155,6 +81,9 @@ F::FID FileSystem::addFile(const F::Path &path_from,
 void FileSystem::selectNewReadFile(const F::FID &fid) {
     F::File *file = tree_.find(fid);
     if (file) {
+        std::fstream check_size(file->path_);
+        manager_net_.setSizeRead(getSizeOfFile(check_size));
+        check_size.close();
         manager_net_.selectNewFileRead(file->path_);
     } else {
         throw FSError("in selectNewReadFile: can`t select file with fid: " +

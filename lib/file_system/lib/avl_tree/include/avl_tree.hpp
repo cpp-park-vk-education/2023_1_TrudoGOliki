@@ -29,9 +29,9 @@ class AVLTree {
     struct TreeNode {
       public:
         TreeNode(const Key &key, Value &&val)
-            : key_(key), left_(nullptr), right_(nullptr), height_(1) {
-            val_ = std::exchange(val, Value());
-        };
+            : key_(key), val_(std::move(val)), height_(1), left_(nullptr),
+              right_(nullptr){};
+
         const Key key_;
         Value val_;
 

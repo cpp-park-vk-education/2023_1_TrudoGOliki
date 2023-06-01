@@ -1,3 +1,5 @@
+#pragma once
+
 #include "file.hpp"
 
 namespace fs {

@@ -2,7 +2,7 @@
 
 #include "file_system.hpp"
 
-int main(int argc, char *argv[]) {
+int main() {
     auto file_base = std::fstream();
     auto f_s = fs::FileSystem(file_base, fs::NAME_MAIN_DIR);
     auto fid = f_s.addFile(
