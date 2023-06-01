@@ -29,9 +29,7 @@ void FileSystem::eraseFile(const F::FID &fid) {
     }
 }
 
-FileSystem::FileSystem(std::fstream &f_stream,
-                       const std::string_view &name_main_dir)
-    : manager_net_(f_stream) {
+FileSystem::FileSystem(const std::string_view &name_main_dir) {
     const char *homePath = std::getenv("HOME");
     path_main_dir_ = F::Path(homePath) / name_main_dir;
     createMainDir();
@@ -82,19 +80,19 @@ void FileSystem::selectNewReadFile(const F::FID &fid) {
     F::File *file = tree_.find(fid);
     if (file) {
         std::fstream check_size(file->path_);
-        manager_net_.setSizeRead(getSizeOfFile(check_size));
+        manager_net_.reader_.setSizeRead(getSizeOfFile(check_size));
         check_size.close();
-        manager_net_.selectNewFileRead(file->path_);
+        manager_net_.reader_.selectNewFileRead(file->path_);
     } else {
         throw FSError("in selectNewReadFile: can`t select file with fid: " +
                       fid.string());
     }
 }
 
-buf::Buffer FileSystem::getBuf() { return manager_net_.getBuf(); }
+buf::Buffer FileSystem::getBuf() { return manager_net_.reader_.getBuf(); }
 
 size_t FileSystem::getSizeFileRead() const {
-    return manager_net_.getSizeFileRead();
+    return manager_net_.reader_.getSizeFileRead();
 };
 
 // FileSystem::createNewFileWrite() can throw FSError
@@ -109,7 +107,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
         file->info_ = info;
         std::string extension = "";   // from info later
         file->path_ = path_main_dir_ / (fid.string() + extension);
-        manager_net_.createNewFileWrite(fid, *file);
+        manager_net_.writer_.createNewFileWrite(fid, *file);
         tree_.insert(fid, std::move(*file));
     } catch (std::exception &e) {
         throw FSError("in FileSystem::createNewFileWrite: " +
@@ -118,7 +116,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
 }
 
 void FileSystem::writeBuf(const buf::Buffer &buf) {
-    return manager_net_.writeBuf(buf);
+    return manager_net_.writer_.writeBuf(buf);
 }
 
 F::File *FileSystem::find(const F::FID &fid) { return tree_.find(fid); }

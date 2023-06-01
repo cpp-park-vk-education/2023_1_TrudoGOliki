@@ -33,7 +33,7 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
 
 class FileSystem {
   public:
-    FileSystem(std::fstream &f_stream, const std::string_view &name_main_dir);
+    FileSystem(const std::string_view &name_main_dir);
 
     void selectNewReadFile(const F::FID &fid);
     buf::Buffer getBuf();

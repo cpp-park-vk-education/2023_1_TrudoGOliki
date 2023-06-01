@@ -18,7 +18,8 @@ struct FID {
 };
 
 struct FileInfo {
-    FileInfo() : size_(0){};
+    FileInfo();
+    FileInfo(std::string description, size_t size);
     std::string description_;
     size_t size_;
 };
