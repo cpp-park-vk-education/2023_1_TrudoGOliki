@@ -107,7 +107,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
         file->info_ = info;
         std::string extension = "";   // from info later
         file->path_ = path_main_dir_ / (fid.string() + extension);
-        manager_net_.writer_.createNewFileWrite(fid, *file);
+        manager_net_.writer_->createNewFileWrite(fid, *file);
         tree_.insert(fid, std::move(*file));
     } catch (std::exception &e) {
         throw FSError("in FileSystem::createNewFileWrite: " +
@@ -116,7 +116,7 @@ void FileSystem::createNewFileWrite(const F::FID &fid,
 }
 
 void FileSystem::writeBuf(const buf::Buffer &buf) {
-    return manager_net_.writer_.writeBuf(buf);
+    return manager_net_.writer_->writeBuf(buf);
 }
 
 F::File *FileSystem::find(const F::FID &fid) { return tree_.find(fid); }

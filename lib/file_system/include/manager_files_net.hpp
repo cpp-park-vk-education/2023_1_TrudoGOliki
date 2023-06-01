@@ -7,10 +7,19 @@
 #include "file.hpp"
 
 namespace fs {
-class WriterNet {
+class IWriterNet {
   public:
-    void createNewFileWrite(const file_fs::FID &fid, const file_fs::File &file);
-    void writeBuf(const buf::Buffer &buf);
+    virtual void createNewFileWrite(const file_fs::FID &fid,
+                                    const file_fs::File &file) = 0;
+    virtual void writeBuf(const buf::Buffer &buf) = 0;
+    virtual ~IWriterNet() = 0;
+};
+
+class WriterNet : public IWriterNet {
+  public:
+    void createNewFileWrite(const file_fs::FID &fid,
+                            const file_fs::File &file) override;
+    void writeBuf(const buf::Buffer &buf) override;
 
   private:
     size_t size_file_;
@@ -44,6 +53,6 @@ class ManagerFilesNet {
   public:
     ManagerFilesNet();
     std::unique_ptr<IReaderNet> reader_;
-    WriterNet writer_;
+    std::unique_ptr<WriterNet> writer_;
 };
 }   // namespace fs

@@ -6,6 +6,7 @@
 
 namespace fs {
 IReaderNet::~IReaderNet() = default;
+IWriterNet::~IWriterNet() = default;
 
 // WriterNet::createNewFileWrite() can throw FSError
 void WriterNet::createNewFileWrite(const file_fs::FID &fid,
@@ -92,6 +93,8 @@ void ReaderNet::setSizeRead(size_t size) { size_file_ = size; };
 
 size_t ReaderNet::getSizeFileRead() const { return size_file_; }
 
-ManagerFilesNet::ManagerFilesNet() : reader_(std::make_unique<ReaderNet>()){};
+ManagerFilesNet::ManagerFilesNet()
+    : reader_(std::make_unique<ReaderNet>()),
+      writer_(std::make_unique<WriterNet>()){};
 
 }   // namespace fs
