@@ -18,25 +18,37 @@ namespace fs {
 namespace F = file_fs;
 namespace AVLT = avl_tree;
 
-// class ITreeSearchFiles {
-//   public:
-//     virtual void insert(const F::FID &fid, F::File &&file) = 0;
-//     virtual void erase(const F::FID &fid) = 0;
-//     virtual F::File *find(const F::FID &fid) = 0;
-// };
+class ITreeSearchFiles;
+using ITreeSearchFilesUP = std::unique_ptr<ITreeSearchFiles>;
 
-class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
+class ITreeSearchFiles {
   public:
-    void insert(const F::FID &fid, F::File &&file);
-    void erase(const F::FID &fid);
-    F::File *find(const F::FID &fid);
-    std::vector<F::FID> getAllFids();
-    std::vector<std::pair<F::FID, F::FileInfo>> getAll();
+    virtual void insert(const F::FID &fid, F::File &&file) = 0;
+    virtual void erase(const F::FID &fid) = 0;
+    virtual F::File *find(const F::FID &fid) = 0;
+
+    virtual std::vector<F::FID> getAllFids() = 0;
+    virtual std::vector<std::pair<F::FID, F::FileInfo>> getAll() = 0;
+
+    virtual ~ITreeSearchFiles() = 0;
+};
+
+class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File>,
+                      public ITreeSearchFiles {
+  public:
+    void insert(const F::FID &fid, F::File &&file) override;
+    void erase(const F::FID &fid) override;
+    F::File *find(const F::FID &fid) override;
+
+    std::vector<F::FID> getAllFids() override;
+    std::vector<std::pair<F::FID, F::FileInfo>> getAll() override;
 };
 
 class FileSystem {
   public:
-    FileSystem(const std::string_view &name_main_dir);
+    FileSystem(const std::string_view &name_main_dir,
+               ITreeSearchFilesUP tree_search, IReaderUP reader,
+               IWriterUP writer);
 
     void selectNewReadFile(const F::FID &fid);
     buf::Buffer getBuf();
@@ -57,7 +69,7 @@ class FileSystem {
     std::vector<std::pair<F::FID, F::FileInfo>> getAll();
 
   private:
-    AVLTreeSearch tree_;
+    ITreeSearchFilesUP tree_;
     ManagerFilesNet manager_net_;
     ManagerFilesCLI manager_cli_;
 

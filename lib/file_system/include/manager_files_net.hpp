@@ -7,6 +7,11 @@
 #include "file.hpp"
 
 namespace fs {
+class IReaderNet;
+class IWriterNet;
+using IReaderUP = std::unique_ptr<IReaderNet>;
+using IWriterUP = std::unique_ptr<IWriterNet>;
+
 class IWriterNet {
   public:
     virtual void createNewFileWrite(const file_fs::FID &fid,
@@ -51,8 +56,8 @@ class ReaderNet : public IReaderNet {
 
 class ManagerFilesNet {
   public:
-    ManagerFilesNet();
+    ManagerFilesNet(IReaderUP reader, IWriterUP writer);
     std::unique_ptr<IReaderNet> reader_;
-    std::unique_ptr<WriterNet> writer_;
+    std::unique_ptr<IWriterNet> writer_;
 };
 }   // namespace fs

@@ -93,8 +93,7 @@ void ReaderNet::setSizeRead(size_t size) { size_file_ = size; };
 
 size_t ReaderNet::getSizeFileRead() const { return size_file_; }
 
-ManagerFilesNet::ManagerFilesNet()
-    : reader_(std::make_unique<ReaderNet>()),
-      writer_(std::make_unique<WriterNet>()){};
+ManagerFilesNet::ManagerFilesNet(IReaderUP reader, IWriterUP writer)
+    : reader_(std::move(reader)), writer_(std::move(writer)){};
 
 }   // namespace fs

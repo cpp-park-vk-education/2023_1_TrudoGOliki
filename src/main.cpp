@@ -4,7 +4,9 @@
 
 int main() {
     // Здесь я просто быстро проверяю, работают ли мои функции
-    auto f_s = fs::FileSystem(fs::NAME_MAIN_DIR);
+    auto f_s = fs::FileSystem(
+        fs::NAME_MAIN_DIR, std::make_unique<fs::AVLTreeSearch>(),
+        std::make_unique<fs::ReaderNet>(), std::make_unique<fs::WriterNet>());
     auto fid = f_s.addFile(
         fs::F::Path("/home/vilin/techno_park/2023_1_TrudoGOliki/lib/"
                     "file_system/lib/avl_tree/include/avl_tree.hpp"),
