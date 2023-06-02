@@ -19,7 +19,9 @@ namespace F = file_fs;
 namespace AVLT = avl_tree;
 
 class ITreeSearchFiles;
+class IManagerCLI;
 using ITreeSearchFilesUP = std::unique_ptr<ITreeSearchFiles>;
+using IManagerCLIUP = std::unique_ptr<IManagerCLI>;
 
 class ITreeSearchFiles {
   public:
@@ -30,7 +32,7 @@ class ITreeSearchFiles {
     virtual std::vector<F::FID> getAllFids() = 0;
     virtual std::vector<std::pair<F::FID, F::FileInfo>> getAll() = 0;
 
-    virtual ~ITreeSearchFiles() = 0;
+    virtual ~ITreeSearchFiles() = default;
 };
 
 class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File>,
@@ -48,7 +50,7 @@ class FileSystem {
   public:
     FileSystem(const std::string_view &name_main_dir,
                ITreeSearchFilesUP tree_search, IReaderUP reader,
-               IWriterUP writer);
+               IWriterUP writer, IManagerCLIUP manager_cli);
 
     void selectNewReadFile(const F::FID &fid);
     buf::Buffer getBuf();
@@ -71,7 +73,7 @@ class FileSystem {
   private:
     ITreeSearchFilesUP tree_;
     ManagerFilesNet manager_net_;
-    ManagerFilesCLI manager_cli_;
+    IManagerCLIUP manager_cli_;
 
     F::Path path_main_dir_;
 

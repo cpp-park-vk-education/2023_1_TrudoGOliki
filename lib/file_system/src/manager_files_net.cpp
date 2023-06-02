@@ -5,9 +5,6 @@
 #include "manager_files_net.hpp"
 
 namespace fs {
-IReaderNet::~IReaderNet() = default;
-IWriterNet::~IWriterNet() = default;
-
 // WriterNet::createNewFileWrite() can throw FSError
 void WriterNet::createNewFileWrite(const file_fs::FID &fid,
                                    const file_fs::File &file) {

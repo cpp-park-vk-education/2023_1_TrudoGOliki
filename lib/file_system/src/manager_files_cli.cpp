@@ -6,6 +6,7 @@
 #include "sha256.hpp"
 
 namespace fs {
+
 file_fs::FID ManagerFilesCLI::calculFID(const file_fs::Path &path_from) {
     std::ifstream in(path_from.string());
 

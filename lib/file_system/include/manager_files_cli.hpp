@@ -3,13 +3,25 @@
 #include "file.hpp"
 
 namespace fs {
-class ManagerFilesCLI {
+class IManagerCLI {
   public:
-    void addFile(const file_fs::Path &path_from, const file_fs::Path &path_to);
+    virtual void addFile(const file_fs::Path &path_from,
+                         const file_fs::Path &path_to) = 0;
 
-    file_fs::FID calculFID(const file_fs::Path &path_from);
+    virtual file_fs::FID calculFID(const file_fs::Path &path_from) = 0;
 
-    void eraseFile(const file_fs::Path &path_to);
+    virtual void eraseFile(const file_fs::Path &path_to) = 0;
+    virtual ~IManagerCLI() = default;
+};
+
+class ManagerFilesCLI : public IManagerCLI {
+  public:
+    void addFile(const file_fs::Path &path_from,
+                 const file_fs::Path &path_to) override;
+
+    file_fs::FID calculFID(const file_fs::Path &path_from) override;
+
+    void eraseFile(const file_fs::Path &path_to) override;
 
   private:
     void copyFile(const file_fs::Path &path_from, const file_fs::Path &path_to);

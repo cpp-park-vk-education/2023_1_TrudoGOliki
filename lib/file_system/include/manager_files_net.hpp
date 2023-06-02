@@ -17,7 +17,7 @@ class IWriterNet {
     virtual void createNewFileWrite(const file_fs::FID &fid,
                                     const file_fs::File &file) = 0;
     virtual void writeBuf(const buf::Buffer &buf) = 0;
-    virtual ~IWriterNet() = 0;
+    virtual ~IWriterNet() = default;
 };
 
 class WriterNet : public IWriterNet {
@@ -37,7 +37,7 @@ class IReaderNet {
     virtual buf::Buffer getBuf() = 0;
     virtual void setSizeRead(size_t size) = 0;
     virtual size_t getSizeFileRead() const = 0;
-    virtual ~IReaderNet() = 0;
+    virtual ~IReaderNet() = default;
 };
 
 class ReaderNet : public IReaderNet {

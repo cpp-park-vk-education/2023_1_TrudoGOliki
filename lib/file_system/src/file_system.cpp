@@ -1,8 +1,6 @@
 #include "file_system.hpp"
 
 namespace fs {
-ITreeSearchFiles::~ITreeSearchFiles() = default;
-
 static size_t getSizeOfFile(std::fstream &f_stream) {
     f_stream.seekg(0, std::ios::end);
     auto size = f_stream.tellg();
@@ -38,7 +36,7 @@ std::vector<std::pair<F::FID, F::FileInfo>> AVLTreeSearch::getAll() {
 void FileSystem::eraseFile(const F::FID &fid) {
     auto file = tree_->find(fid);
     if (file) {
-        manager_cli_.eraseFile(file->path_);
+        manager_cli_->eraseFile(file->path_);
         tree_->erase(fid);
     } else {
         throw FSError("in eraseFile: can`t erase file with fid: " +
@@ -48,9 +46,9 @@ void FileSystem::eraseFile(const F::FID &fid) {
 
 FileSystem::FileSystem(const std::string_view &name_main_dir,
                        ITreeSearchFilesUP tree_search, IReaderUP reader,
-                       IWriterUP writer)
+                       IWriterUP writer, IManagerCLIUP manager_cli)
     : manager_net_(ManagerFilesNet(std::move(reader), std::move(writer))),
-      tree_(std::move(tree_search)) {
+      tree_(std::move(tree_search)), manager_cli_(std::move(manager_cli)) {
     const char *homePath = std::getenv("HOME");
     path_main_dir_ = F::Path(homePath) / name_main_dir;
     createMainDir();
@@ -73,14 +71,14 @@ void FileSystem::createMainDir() {
 F::FID FileSystem::addFile(const F::Path &path_from,
                            const std::string &description) {
     try {
-        F::FID fid = manager_cli_.calculFID(path_from);
+        F::FID fid = manager_cli_->calculFID(path_from);
         F::File *find_file = tree_->find(fid);
         if (find_file) {
             throw FSError("file with FID: " + fid.string() + " already exist");
         }
 
         auto path_to = path_main_dir_ / F::Path(fid.hash_);
-        manager_cli_.addFile(path_from, path_to);
+        manager_cli_->addFile(path_from, path_to);
         auto file = new F::File();
         file->info_.description_ = description;
 
