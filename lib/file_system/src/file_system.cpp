@@ -17,6 +17,21 @@ void AVLTreeSearch::erase(const F::FID &fid) { AVLTree::erase(fid); };
 
 F::File *AVLTreeSearch::find(const F::FID &fid) { return AVLTree::find(fid); };
 
+std::vector<F::FID> AVLTreeSearch::getAllFids() {
+    return AVLTree::getAllKeys();
+};
+
+std::vector<std::pair<F::FID, F::FileInfo>> AVLTreeSearch::getAll() {
+    auto full_vec = AVLTree::getAll();
+    auto result = std::vector<std::pair<F::FID, F::FileInfo>>();
+    result.reserve(full_vec.size());
+    for (auto elem : full_vec) {
+        result.push_back({elem.first, elem.second.info_});
+    }
+
+    return result;
+};
+
 // FileSystem::eraseFile() can throw FSError
 void FileSystem::eraseFile(const F::FID &fid) {
     auto file = tree_.find(fid);
@@ -120,5 +135,11 @@ void FileSystem::writeBuf(const buf::Buffer &buf) {
 }
 
 F::File *FileSystem::find(const F::FID &fid) { return tree_.find(fid); }
+
+std::vector<F::FID> FileSystem::getAllFids() { return tree_.getAllFids(); };
+
+std::vector<std::pair<F::FID, F::FileInfo>> FileSystem::getAll() {
+    return tree_.getAll();
+};
 
 }   // namespace fs

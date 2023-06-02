@@ -3,6 +3,7 @@
 #include "file_system.hpp"
 
 int main() {
+    // Здесь я просто быстро проверяю, работают ли мои функции
     auto f_s = fs::FileSystem(fs::NAME_MAIN_DIR);
     auto fid = f_s.addFile(
         fs::F::Path("/home/vilin/techno_park/2023_1_TrudoGOliki/lib/"
@@ -12,7 +13,6 @@ int main() {
     auto size = f_s.getSizeFileRead();
     f_s.createNewFileWrite(file_fs::FID{"a"},
                            file_fs::FileInfo{"description", size});
-
     buf::Buffer buf = f_s.getBuf();
     size_t cur_size = 0;
     while (buf.buf_) {
@@ -60,6 +60,19 @@ int main() {
         if (cur_size != size) {
             throw "cur_size != size";
         }
+    }
+
+    auto res = f_s.getAllFids();
+    for (int i = 0; i < res.size(); i++) {
+        std::cout << res[i].string() << std::endl;
+    }
+    std::cout << std::endl << "_________" << std::endl;
+
+    auto full_res = f_s.getAll();
+    for (int i = 0; i < full_res.size(); i++) {
+        std::cout << full_res[i].first.string() << " "
+                  << full_res[i].second.description_ << " "
+                  << full_res[i].second.size_ << std::endl;
     }
 
     return 0;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <utility>
 
 #include "avl_tree.hpp"
 #include "buffer.hpp"
@@ -29,6 +30,8 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File> {
     void insert(const F::FID &fid, F::File &&file);
     void erase(const F::FID &fid);
     F::File *find(const F::FID &fid);
+    std::vector<F::FID> getAllFids();
+    std::vector<std::pair<F::FID, F::FileInfo>> getAll();
 };
 
 class FileSystem {
@@ -49,6 +52,9 @@ class FileSystem {
 
     // find() return nullptr if file with fid not exist
     F::File *find(const F::FID &fid);
+
+    std::vector<F::FID> getAllFids();
+    std::vector<std::pair<F::FID, F::FileInfo>> getAll();
 
   private:
     AVLTreeSearch tree_;

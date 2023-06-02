@@ -1,9 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <stack>
 #include <stdexcept>
+#include <utility>
 
 namespace avl_tree {
 class AVLError : public std::runtime_error {
@@ -53,11 +55,29 @@ class AVLTree {
         post_order([](TreeNode *node) { delete node; });
     }
 
+    std::vector<Key> getAllKeys() {
+        std::vector<Key> result = std::vector<Key>();
+        AVLTree::post_order(
+            [&result](TreeNode *node) { result.push_back(node->key_); });
+
+        return result;
+    }
+
+    std::vector<std::pair<Key, Value>> getAll() {
+        std::vector<std::pair<Key, Value>> result =
+            std::vector<std::pair<Key, Value>>();
+        AVLTree::post_order([&result](TreeNode *node) {
+            result.push_back({node->key_, node->val_});
+        });
+
+        return result;
+    }
+
   private:
     TreeNode *root_;
     Comparator comp_;
 
-    void post_order(void (*handler)(TreeNode *node)) {
+    void post_order(const std::function<void(TreeNode *)> &handler) {
         std::stack<TreeNode *> stack1;
         std::stack<TreeNode *> stack2;
         TreeNode *cur_node = root_;
