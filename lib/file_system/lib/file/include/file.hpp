@@ -26,7 +26,8 @@ struct FID : public iserial::ISerializable {
 
 struct FileInfo : public iserial::ISerializable {
     FileInfo();
-    FileInfo(std::string description, size_t size);
+    FileInfo(const std::string &description, size_t size);
+    FileInfo(std::string &&description, size_t size);
 
     buf::Buffer serialize() const override;
     size_t deserialize(const char *buf) override;
@@ -38,7 +39,8 @@ struct FileInfo : public iserial::ISerializable {
 class File : public iserial::ISerializable {
   public:
     File();
-    File(Path path, FileInfo info);
+    File(const Path &path, const FileInfo &info);
+    File(Path &&path, FileInfo &&info);
 
     buf::Buffer serialize() const override;
     size_t deserialize(const char *buf) override;

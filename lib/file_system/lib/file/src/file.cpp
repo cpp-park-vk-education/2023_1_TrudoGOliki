@@ -43,7 +43,10 @@ size_t FID::deserialize(const char *buf) {
 
 FileInfo::FileInfo() : size_(0){};
 
-FileInfo::FileInfo(std::string description, size_t size)
+FileInfo::FileInfo(const std::string &description, size_t size)
+    : description_(description), size_(size){};
+
+FileInfo::FileInfo(std::string &&description, size_t size)
     : description_(std::move(description)), size_(size){};
 
 buf::Buffer FileInfo::serialize() const {
@@ -76,7 +79,9 @@ size_t FileInfo::deserialize(const char *buf) {
 
 File::File(){};
 
-File::File(Path path, FileInfo info)
+File::File(const Path &path, const FileInfo &info) : path_(path), info_(info){};
+
+File::File(Path &&path, FileInfo &&info)
     : path_(std::move(path)), info_(std::move(info)){};
 
 buf::Buffer File::serialize() const {
