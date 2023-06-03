@@ -20,12 +20,12 @@ bool FID::operator==(const FID &other) const { return hash_ == other.hash_; };
 buf::Buffer FID::serialize() const {
     size_t size_hash = hash_.size();
     auto buf = buf::Buffer(size_hash + sizeof(size_t));
-    char *cur_positon = buf.buf_;
+    char *cur_position = buf.buf_;
 
-    std::memcpy(cur_positon, &size_hash, sizeof(size_t));
-    cur_positon += sizeof(size_t);
-    buf::copyBuf(hash_.c_str(), cur_positon, size_hash);
-    cur_positon += size_hash;
+    std::memcpy(cur_position, &size_hash, sizeof(size_t));
+    cur_position += sizeof(size_t);
+    buf::copyBuf(hash_.c_str(), cur_position, size_hash);
+    cur_position += size_hash;
 
     return buf;
 };
@@ -46,6 +46,34 @@ FileInfo::FileInfo() : size_(0){};
 FileInfo::FileInfo(std::string description, size_t size)
     : description_(std::move(description)), size_(size){};
 
+buf::Buffer FileInfo::serialize() const {
+    size_t desc_size = description_.size();
+    auto buf = buf::Buffer(desc_size + 2 * sizeof(size_t));
+    char *cur_position = buf.buf_;
+    std::memcpy(cur_position, &desc_size, sizeof(size_t));
+    cur_position += sizeof(size_t);
+    buf::copyBuf(description_.c_str(), cur_position, desc_size);
+    cur_position += desc_size;
+
+    std::memcpy(cur_position, &size_, sizeof(size_t));
+
+    return buf;
+};
+
+size_t FileInfo::deserialize(const char *buf) {
+    size_t desc_size;
+    const char *cur_position = buf;
+    std::memcpy(&desc_size, cur_position, sizeof(size_t));
+    cur_position += sizeof(size_t);
+    description_ = std::string(cur_position, desc_size);
+    cur_position += desc_size;
+
+    std::memcpy(&size_, cur_position, sizeof(size_t));
+    cur_position += sizeof(size_t);
+
+    return cur_position - buf;
+};
+
 File::File(){};
 
 File::File(Path path, FileInfo info)
@@ -55,23 +83,16 @@ buf::Buffer File::serialize() const {
     std::string path_str = path_.string();
     size_t path_size = path_str.size();
 
-    std::string description = info_.description_;
-    size_t desc_size = description.size();
+    auto buf = buf::Buffer(path_size + sizeof(size_t));
+    char *cur_position = buf.buf_;
 
-    auto buf = buf::Buffer(desc_size + path_size + 3 * sizeof(size_t));
-    char *cur_positon = buf.buf_;
+    std::memcpy(cur_position, &path_size, sizeof(size_t));
+    cur_position += sizeof(size_t);
+    buf::copyBuf(path_str.c_str(), cur_position, path_size);
+    cur_position += path_size;
 
-    std::memcpy(cur_positon, &path_size, sizeof(size_t));
-    cur_positon += sizeof(size_t);
-    buf::copyBuf(path_str.c_str(), cur_positon, path_size);
-    cur_positon += path_size;
-
-    std::memcpy(cur_positon, &desc_size, sizeof(size_t));
-    cur_positon += sizeof(size_t);
-    buf::copyBuf(description.c_str(), cur_positon, desc_size);
-    cur_positon += desc_size;
-
-    std::memcpy(cur_positon, &info_.size_, sizeof(size_t));
+    auto buf_info = info_.serialize();
+    buf = buf + buf_info;
 
     return buf;
 };
@@ -85,14 +106,7 @@ size_t File::deserialize(const char *buf) {
     cur_position += path_size;
     path_ = Path(path_str);
 
-    size_t desc_size;
-    std::memcpy(&desc_size, cur_position, sizeof(size_t));
-    cur_position += sizeof(size_t);
-    info_.description_ = std::string(cur_position, desc_size);
-    cur_position += desc_size;
-
-    std::memcpy(&info_.size_, cur_position, sizeof(size_t));
-    cur_position += sizeof(size_t);
+    cur_position += info_.deserialize(cur_position);
 
     return cur_position - buf;
 };

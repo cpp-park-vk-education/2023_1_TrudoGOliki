@@ -24,9 +24,13 @@ struct FID : public iserial::ISerializable {
     std::string hash_;
 };
 
-struct FileInfo {
+struct FileInfo : public iserial::ISerializable {
     FileInfo();
     FileInfo(std::string description, size_t size);
+
+    buf::Buffer serialize() const override;
+    size_t deserialize(const char *buf) override;
+
     std::string description_;
     size_t size_;
 };
