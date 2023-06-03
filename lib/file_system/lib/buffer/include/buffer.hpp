@@ -13,13 +13,11 @@ class Buffer {
   public:
     explicit Buffer(size_t size);
     Buffer(const char *buf, size_t size);
-    Buffer(const Buffer &other)
-        : buf_(new char[other.size_]), size_(other.size_) {
-        copyBuf(other.buf_, this->buf_, other.size_);
-    };
+    Buffer(const Buffer &other);
     Buffer(Buffer &&other);
     Buffer &operator=(const Buffer &other);
     Buffer &operator=(Buffer &&other);
+    Buffer &operator+(Buffer &other);
 
     ~Buffer();
 

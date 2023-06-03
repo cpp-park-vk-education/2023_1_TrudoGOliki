@@ -4,7 +4,7 @@ set(SOURCES src/file_system.cpp src/manager_files_cli.cpp src/manager_files_net.
 
 add_library(file_system ${SOURCES} ${HEADERS})  
 
-set(LINK_LIBRARIES buffer iserializable avl_tree file sha256 constants errors)
+set(LINK_LIBRARIES buffer iserializable avl_tree errors file sha256 constants)
 
 set(SUB_DIR lib/buffer lib/iserializable lib/constants lib/file lib/avl_tree lib/sha256 lib/errors)
 

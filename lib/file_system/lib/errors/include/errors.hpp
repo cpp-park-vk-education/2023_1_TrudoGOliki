@@ -5,4 +5,8 @@ namespace fs {
 class FSError : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
+
+class BufError : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
 }   // namespace fs
