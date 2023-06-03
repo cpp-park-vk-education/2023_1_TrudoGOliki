@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <queue>
 #include <stack>
 #include <stdexcept>
 #include <utility>
@@ -57,7 +58,7 @@ class AVLTree {
 
     std::vector<Key> getAllKeys() {
         std::vector<Key> result = std::vector<Key>();
-        AVLTree::post_order(
+        AVLTree::bfs(
             [&result](TreeNode *node) { result.push_back(node->key_); });
 
         return result;
@@ -66,7 +67,7 @@ class AVLTree {
     std::vector<std::pair<Key, Value>> getAll() {
         std::vector<std::pair<Key, Value>> result =
             std::vector<std::pair<Key, Value>>();
-        AVLTree::post_order([&result](TreeNode *node) {
+        AVLTree::bfs([&result](TreeNode *node) {
             result.push_back({node->key_, node->val_});
         });
 
@@ -104,13 +105,33 @@ class AVLTree {
         }
     };
 
+    void bfs(const std::function<void(TreeNode *)> &handler) {
+        if (root_ != nullptr) {
+            std::queue<TreeNode *> q;
+            q.push(root_);
+
+            while (!q.empty()) {
+                TreeNode *cur_node = q.front();
+                q.pop();
+                handler(cur_node);
+
+                if (cur_node->left_) {
+                    q.push(cur_node->left_);
+                }
+                if (cur_node->right_) {
+                    q.push(cur_node->right_);
+                }
+            }
+        }
+    };
+
     uint8_t height(TreeNode *node) {
         if (!node) {
             return 0;
         }
 
         return node->height_;
-    }
+    };
 
     // findAux() return nullptr if node with key not exist
     Value *findAux(const Key &key, TreeNode *node) {
