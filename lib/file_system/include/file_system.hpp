@@ -6,7 +6,6 @@
 #include <utility>
 
 #include "avl_tree.hpp"
-#include "buffer.hpp"
 #include "constants.hpp"
 #include "errors.hpp"
 #include "file.hpp"
@@ -30,7 +29,7 @@ class ITreeSearchFiles {
     virtual F::File *find(const F::FID &fid) = 0;
 
     virtual std::vector<F::FID> getAllFids() = 0;
-    virtual std::vector<std::pair<F::FID, F::FileInfo>> getAll() = 0;
+    virtual std::vector<std::pair<F::FID, F::File>> getAll() = 0;
 
     virtual ~ITreeSearchFiles() = default;
 };
@@ -43,7 +42,7 @@ class AVLTreeSearch : public AVLT::AVLTree<F::FID, F::File>,
     F::File *find(const F::FID &fid) override;
 
     std::vector<F::FID> getAllFids() override;
-    std::vector<std::pair<F::FID, F::FileInfo>> getAll() override;
+    std::vector<std::pair<F::FID, F::File>> getAll() override;
 };
 
 class FileSystem {
@@ -68,7 +67,9 @@ class FileSystem {
     F::File *find(const F::FID &fid);
 
     std::vector<F::FID> getAllFids();
-    std::vector<std::pair<F::FID, F::FileInfo>> getAll();
+    std::vector<std::pair<F::FID, F::File>> getAll();
+
+    ~FileSystem();
 
   private:
     ITreeSearchFilesUP tree_;
@@ -77,6 +78,8 @@ class FileSystem {
 
     F::Path path_main_dir_;
 
+    void save();
+    void recover();
     void createMainDir();
 };
 }   // namespace fs

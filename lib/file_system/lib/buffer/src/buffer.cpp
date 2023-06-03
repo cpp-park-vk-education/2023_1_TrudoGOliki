@@ -1,15 +1,27 @@
 #include "buffer.hpp"
 
 #include <memory>
+#include <stdexcept>
 
 namespace buf {
+// Buffer(size_t size) can throw std::runtime_error if size==0
 Buffer::Buffer(size_t size) : size_(size) {
     if (size == 0) {
-        buf_ = nullptr;
+        throw std::runtime_error("can`t create buffer with size=0");
     } else {
         buf_ = new char[size];
     }
 };
+
+// Buffer(char *buf, size_t size) can throw std::runtime_error if size==0 or
+// buf==nullptr
+Buffer::Buffer(const char *buf, size_t size) {
+    if (buf != nullptr && size != 0) {
+        copyBuf(buf, buf_, size);
+    }
+    throw std::runtime_error("can`t create buffer with size=" +
+                             std::to_string(size) + " and buf=" + buf);
+}
 
 Buffer::Buffer(Buffer &&other) {
     size_ = other.size_;
@@ -36,12 +48,6 @@ Buffer &Buffer::operator=(const Buffer &other) {
         size_ = other.size_;
     }
     return *this;
-};
-
-void Buffer::copyBuf(char *buf1, char *buf2, size_t count) {
-    for (int i = 0; i < count; i++) {
-        buf2[i] = buf1[i];
-    }
 };
 
 Buffer::~Buffer() { delete[] buf_; }

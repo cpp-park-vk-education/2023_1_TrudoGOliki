@@ -18,7 +18,7 @@ void WriterNet::createNewFileWrite(const file_fs::FID &fid,
         of_stream_.open(path_str, std::ios::binary | std::ios::out);
         if (!of_stream_.is_open()) {
             throw FSError("file not opened. Path=" + path_str +
-                          " Fid=" + fid.string());
+                          " Fid=" + fid.hash_);
         }
     } catch (std::ios::failure &e) {
         throw FSError("in selectNewFileRead exception: " +

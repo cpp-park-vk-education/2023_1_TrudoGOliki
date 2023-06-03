@@ -3,7 +3,6 @@
 #include <fstream>
 #include <memory>
 
-#include "buffer.hpp"
 #include "file.hpp"
 
 namespace fs {

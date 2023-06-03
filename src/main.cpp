@@ -67,15 +67,15 @@ int main() {
 
     auto res = f_s.getAllFids();
     for (int i = 0; i < res.size(); i++) {
-        std::cout << res[i].string() << std::endl;
+        std::cout << res[i].hash_ << std::endl;
     }
     std::cout << std::endl << "_________" << std::endl;
 
     auto full_res = f_s.getAll();
     for (int i = 0; i < full_res.size(); i++) {
-        std::cout << full_res[i].first.string() << " "
-                  << full_res[i].second.description_ << " "
-                  << full_res[i].second.size_ << std::endl;
+        std::cout << full_res[i].first.hash_ << " "
+                  << full_res[i].second.info_.description_ << " "
+                  << full_res[i].second.info_.size_ << std::endl;
     }
 
     return 0;

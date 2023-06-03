@@ -6,15 +6,22 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../../iserializable/include/iserializable.hpp"
+
 namespace file_fs {
 using Path = std::filesystem::path;
 
-struct FID {
-    const std::string hash_;
+struct FID : public iserial::ISerializable {
+    FID();
+    FID(std::string hash);
 
     bool operator<(const FID &other) const;
     bool operator==(const FID &other) const;
-    std::string string() const;
+
+    buf::Buffer serialize() const override;
+    size_t deserialize(const char *buf) override;
+
+    std::string hash_;
 };
 
 struct FileInfo {
@@ -24,12 +31,16 @@ struct FileInfo {
     size_t size_;
 };
 
-class File {
+class File : public iserial::ISerializable {
   public:
+    File();
+    File(Path path, FileInfo info);
+
+    buf::Buffer serialize() const override;
+    size_t deserialize(const char *buf) override;
+
     Path path_;
     FileInfo info_;
-
-  private:
 };
 
 }   // namespace file_fs
