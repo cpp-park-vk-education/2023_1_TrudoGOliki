@@ -1,7 +1,7 @@
 #include <fstream>
 
 #include "constants.hpp"
-#include "errors.hpp"
+#include "fs_error.hpp"
 #include "manager_files_cli.hpp"
 #include "sha256.hpp"
 

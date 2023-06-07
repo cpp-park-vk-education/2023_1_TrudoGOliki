@@ -5,14 +5,14 @@
 #include <iostream>
 #include <utility>
 
-#include "avl_tree_search.hpp"
 #include "constants.hpp"
-#include "errors.hpp"
-
 #include "file.hpp"
+#include "fs_error.hpp"
+#include "sha256.hpp"
+
+#include "avl_tree_search.hpp"
 #include "manager_files_cli.hpp"
 #include "manager_files_net.hpp"
-#include "sha256.hpp"
 
 namespace fs {
 class IManagerCLI;

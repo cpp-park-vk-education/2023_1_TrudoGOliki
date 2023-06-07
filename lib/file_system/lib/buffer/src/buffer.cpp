@@ -3,7 +3,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../../errors/include/errors.hpp"
+#include "../../errors/include/buf_error.hpp"
 
 namespace buf {
 // Buffer(size_t size) can throw fs::BufError if size==0

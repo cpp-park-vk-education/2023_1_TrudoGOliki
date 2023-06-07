@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "constants.hpp"
-#include "errors.hpp"
+#include "fs_error.hpp"
 #include "manager_files_net.hpp"
 
 namespace fs {
@@ -57,8 +57,7 @@ void ReaderNet::selectNewFileRead(const file_fs::Path &path) {
     }
 }
 
-// ReaderNet::getBuf() can throw FSError and return buf::Buffer{buf_ ==
-// nullptr and size_ = 0, when read of file done
+// ReaderNet::getBuf() can throw FSError
 buf::Buffer ReaderNet::getBuf() {
     try {
         if (if_stream_.tellg() < size_file_) {
@@ -80,7 +79,8 @@ buf::Buffer ReaderNet::getBuf() {
         if (if_stream_.eof()) {
             if_stream_.close();
         }
-        return buf::Buffer(0);
+
+        throw FSError("unknown error. May be you try read from closed file");
     } catch (std::ios::failure &e) {
         throw FSError("in getBuf exception: " +
                       static_cast<std::string>(e.what()));
