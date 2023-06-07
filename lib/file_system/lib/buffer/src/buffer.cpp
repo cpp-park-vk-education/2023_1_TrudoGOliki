@@ -3,53 +3,54 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../../errors/include/buf_error.hpp"
-
 namespace buf {
-// Buffer(size_t size) can throw fs::BufError if size==0
+class BufError : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+// Buffer(size_t size) can throw BufError if size==0
 Buffer::Buffer(size_t size) : size_(size) {
     if (size == 0) {
-        throw fs::BufError("can`t create buffer with size=0");
+        throw BufError("can`t create buffer with size=0");
     } else {
         buf_ = new char[size];
     }
 };
 
-// Buffer(char *buf, size_t size) can throw fs::BufError if size==0 or
+// Buffer(char *buf, size_t size) can throw BufError if size==0 or
 // buf==nullptr
 Buffer::Buffer(const char *buf, size_t size) : Buffer(size) {
     if (buf != nullptr) {
         copyBuf(buf, buf_, size);
         return;
     }
-    throw fs::BufError("can`t create buffer with size=" + std::to_string(size) +
-                       " and buf=" + buf);
+    throw BufError("can`t create buffer with size=" + std::to_string(size) +
+                   " and buf=" + buf);
 }
 
-// Buffer(const &) can throw fs::BufError
+// Buffer(const &) can throw BufError
 Buffer::Buffer(const Buffer &other)
     : buf_(new char[other.size_]), size_(other.size_) {
     if (other.buf_ == nullptr || other.size_ == 0) {
-        throw fs::BufError("Buffer(const &) can`t work with unccorect bufers");
+        throw BufError("Buffer(const &) can`t work with unccorect bufers");
     }
     copyBuf(other.buf_, this->buf_, other.size_);
 };
 
-// Buffer(&&) can throw fs::BufError
+// Buffer(&&) can throw BufError
 Buffer::Buffer(Buffer &&other) {
     if (other.buf_ == nullptr || other.size_ == 0) {
-        throw fs::BufError("Buffer(&&) can`t work with unccorect bufers");
+        throw BufError("Buffer(&&) can`t work with unccorect bufers");
     }
     size_ = other.size_;
     buf_ = std::exchange(other.buf_, nullptr);
 };
 
-// operator=(const &) can throw fs::BufError
+// operator=(const &) can throw BufError
 Buffer &Buffer::operator=(const Buffer &other) {
     if (buf_ == nullptr || other.buf_ == nullptr || size_ == 0 ||
         other.size_ == 0) {
-        throw fs::BufError(
-            "operator=(const &) can`t work with unccorect bufers");
+        throw BufError("operator=(const &) can`t work with unccorect bufers");
     }
     if (this != &other) {
         char *tmp = new char[other.size_];
@@ -62,11 +63,11 @@ Buffer &Buffer::operator=(const Buffer &other) {
     return *this;
 };
 
-// operator=(&&) can throw fs::BufError
+// operator=(&&) can throw BufError
 Buffer &Buffer::operator=(Buffer &&other) {
     if (buf_ == nullptr || other.buf_ == nullptr || size_ == 0 ||
         other.size_ == 0) {
-        throw fs::BufError("operator=(&&) can`t work with unccorect bufers");
+        throw BufError("operator=(&&) can`t work with unccorect bufers");
     }
     if (this != &other) {
         this->~Buffer();
@@ -77,11 +78,11 @@ Buffer &Buffer::operator=(Buffer &&other) {
     return *this;
 };
 
-// Buffer::operator+ throw fs::BufError
+// Buffer::operator+ throw BufError
 Buffer &Buffer::operator+(Buffer &other) {
     if (buf_ == nullptr || other.buf_ == nullptr || size_ == 0 ||
         other.size_ == 0) {
-        throw fs::BufError("can`t summ unccorect bufers");
+        throw BufError("can`t summ unccorect bufers");
     }
     Buffer tmp(size_ + other.size_);
     copyBuf(buf_, tmp.buf_, size_);

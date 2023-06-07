@@ -1,8 +1,9 @@
+#include "manager_files_cli.hpp"
+
 #include <fstream>
 
 #include "constants.hpp"
 #include "fs_error.hpp"
-#include "manager_files_cli.hpp"
 #include "sha256.hpp"
 
 namespace fs {

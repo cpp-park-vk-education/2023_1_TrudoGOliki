@@ -1,12 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <functional>
-#include <memory>
 #include <queue>
 #include <stack>
 #include <stdexcept>
-#include <utility>
 
 namespace avl_tree {
 class AVLError : public std::runtime_error {

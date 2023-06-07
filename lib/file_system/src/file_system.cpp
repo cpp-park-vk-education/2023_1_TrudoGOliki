@@ -1,8 +1,12 @@
 #include "file_system.hpp"
 
-namespace fs {
-constexpr std::string_view MAIN_RECOVER_FILE = ".main_recover_file";
+#include <fstream>
+#include <iostream>
 
+#include "constants.hpp"
+#include "fs_error.hpp"
+
+namespace fs {
 static size_t getSizeOfFile(std::fstream &f_stream) {
     f_stream.seekg(0, std::ios::end);
     auto size = f_stream.tellg();
