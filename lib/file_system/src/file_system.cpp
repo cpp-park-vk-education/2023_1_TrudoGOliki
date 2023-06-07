@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "constants.hpp"
 #include "fs_error.hpp"
+#include "main_dir.hpp"
 
 namespace fs {
 static size_t getSizeOfFile(std::fstream &f_stream) {

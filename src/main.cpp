@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "constants.hpp"
 #include "file.hpp"
 #include "file_system.hpp"
+#include "main_dir.hpp"
 
 int main() {
     // Здесь я просто быстро проверяю, работают ли мои функции

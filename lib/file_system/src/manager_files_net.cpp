@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "constants.hpp"
 #include "fs_error.hpp"
+#include "standard_buffer_size.hpp"
 
 namespace fs {
 // WriterNet::createNewFileWrite() can throw FSError

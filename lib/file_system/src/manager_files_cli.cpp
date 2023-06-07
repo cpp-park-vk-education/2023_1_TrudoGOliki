@@ -2,9 +2,9 @@
 
 #include <fstream>
 
-#include "constants.hpp"
 #include "fs_error.hpp"
 #include "sha256.hpp"
+#include "standard_buffer_size.hpp"
 
 namespace fs {
 
