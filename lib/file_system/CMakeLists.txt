@@ -1,6 +1,9 @@
 project(file_system VERSION 0.1.0)
-set(HEADERS include/file_system.hpp include/manager_files_cli.hpp include/manager_files_net.hpp)
-set(SOURCES src/file_system.cpp src/manager_files_cli.cpp src/manager_files_net.cpp)
+set(HEADERS include/file_system.hpp include/manager_files_cli.hpp
+ include/manager_files_net.hpp include/avl_tree_search.hpp)
+
+set(SOURCES src/file_system.cpp src/manager_files_cli.cpp
+ src/manager_files_net.cpp src/avl_tree_search.cpp)
 
 add_library(file_system ${SOURCES} ${HEADERS})  
 

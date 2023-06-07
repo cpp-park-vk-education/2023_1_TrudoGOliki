@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "file.hpp"
 #include "file_system.hpp"
 
 int main() {
@@ -9,8 +10,8 @@ int main() {
         std::make_unique<fs::ReaderNet>(), std::make_unique<fs::WriterNet>(),
         std::make_unique<fs::ManagerFilesCLI>());
     auto fid = f_s.addFile(
-        fs::F::Path("/home/vilin/techno_park/2023_1_TrudoGOliki/lib/"
-                    "file_system/lib/avl_tree/include/avl_tree.hpp"),
+        file_fs::Path("/home/vilin/techno_park/2023_1_TrudoGOliki/lib/"
+                      "file_system/lib/avl_tree/include/avl_tree.hpp"),
         "its my file");
     f_s.selectNewReadFile(fid);
     auto size = f_s.getSizeFileRead();

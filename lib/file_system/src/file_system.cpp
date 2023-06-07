@@ -10,30 +10,13 @@ static size_t getSizeOfFile(std::fstream &f_stream) {
     return static_cast<size_t>(size);
 }
 
-// insert can throw AVLT::AVLError
-void AVLTreeSearch::insert(const F::FID &fid, F::File &&file) {
-    AVLTree::insert(fid, std::move(file));
-};
-
-void AVLTreeSearch::erase(const F::FID &fid) { AVLTree::erase(fid); };
-
-F::File *AVLTreeSearch::find(const F::FID &fid) { return AVLTree::find(fid); };
-
-std::vector<F::FID> AVLTreeSearch::getAllFids() {
-    return AVLTree::getAllKeys();
-};
-
-std::vector<std::pair<F::FID, F::File>> AVLTreeSearch::getAll() {
-    return AVLTree::getAll();
-};
-
 FileSystem::FileSystem(const std::string_view &name_main_dir,
                        ITreeSearchFilesUP tree_search, IReaderUP reader,
                        IWriterUP writer, IManagerCLIUP manager_cli)
     : manager_net_(ManagerFilesNet(std::move(reader), std::move(writer))),
       tree_(std::move(tree_search)), manager_cli_(std::move(manager_cli)) {
     const char *homePath = std::getenv("HOME");
-    path_main_dir_ = F::Path(homePath) / name_main_dir;
+    path_main_dir_ = file_fs::Path(homePath) / name_main_dir;
 
     try {
         recover();
@@ -60,18 +43,18 @@ void FileSystem::createMainDir() {
     }
 };
 
-F::FID FileSystem::addFile(const F::Path &path_from,
-                           const std::string &description) {
+file_fs::FID FileSystem::addFile(const file_fs::Path &path_from,
+                                 const std::string &description) {
     try {
-        F::FID fid = manager_cli_->calculFID(path_from);
-        F::File *find_file = tree_->find(fid);
+        file_fs::FID fid = manager_cli_->calculFID(path_from);
+        file_fs::File *find_file = tree_->find(fid);
         if (find_file) {
             throw FSError("file with FID: " + fid.hash_ + " already exist");
         }
 
-        auto path_to = path_main_dir_ / F::Path(fid.hash_);
+        auto path_to = path_main_dir_ / file_fs::Path(fid.hash_);
         manager_cli_->addFile(path_from, path_to);
-        auto file = new F::File();
+        auto file = new file_fs::File();
         file->info_.description_ = description;
 
         std::fstream file_stream(path_to);
@@ -87,7 +70,7 @@ F::FID FileSystem::addFile(const F::Path &path_from,
 }
 
 // FileSystem::eraseFile() can throw FSError
-void FileSystem::eraseFile(const F::FID &fid) {
+void FileSystem::eraseFile(const file_fs::FID &fid) {
     auto file = tree_->find(fid);
     if (file) {
         manager_cli_->eraseFile(file->path_);
@@ -98,8 +81,8 @@ void FileSystem::eraseFile(const F::FID &fid) {
 }
 
 // FileSystem::selectNewReadFile() can throw FSError
-void FileSystem::selectNewReadFile(const F::FID &fid) {
-    F::File *file = tree_->find(fid);
+void FileSystem::selectNewReadFile(const file_fs::FID &fid) {
+    file_fs::File *file = tree_->find(fid);
     if (file) {
         std::fstream check_size(file->path_);
         manager_net_.reader_->setSizeRead(getSizeOfFile(check_size));
@@ -118,14 +101,14 @@ size_t FileSystem::getSizeFileRead() const {
 };
 
 // FileSystem::createNewFileWrite() can throw FSError
-void FileSystem::createNewFileWrite(const F::FID &fid,
-                                    const F::FileInfo &info) {
+void FileSystem::createNewFileWrite(const file_fs::FID &fid,
+                                    const file_fs::FileInfo &info) {
     try {
-        F::File *find_file = tree_->find(fid);
+        file_fs::File *find_file = tree_->find(fid);
         if (find_file) {
             throw FSError("file with FID: " + fid.hash_ + " already exist");
         }
-        auto file = new F::File();
+        auto file = new file_fs::File();
         file->info_ = info;
         std::string extension = "";   // from info later
         file->path_ = path_main_dir_ / (fid.hash_ + extension);
@@ -141,11 +124,15 @@ void FileSystem::writeBuf(const buf::Buffer &buf) {
     return manager_net_.writer_->writeBuf(buf);
 }
 
-F::File *FileSystem::find(const F::FID &fid) { return tree_->find(fid); }
+file_fs::File *FileSystem::find(const file_fs::FID &fid) {
+    return tree_->find(fid);
+}
 
-std::vector<F::FID> FileSystem::getAllFids() { return tree_->getAllFids(); };
+std::vector<file_fs::FID> FileSystem::getAllFids() {
+    return tree_->getAllFids();
+};
 
-std::vector<std::pair<F::FID, F::File>> FileSystem::getAll() {
+std::vector<std::pair<file_fs::FID, file_fs::File>> FileSystem::getAll() {
     return tree_->getAll();
 };
 
@@ -189,7 +176,7 @@ void FileSystem::recover() {
     size_t size;
     in.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 
-    std::vector<std::pair<F::FID, F::File>> vec_all;
+    std::vector<std::pair<file_fs::FID, file_fs::File>> vec_all;
     vec_all.reserve(size);
 
     size_t size_buf = getRemainder(in);
@@ -198,8 +185,8 @@ void FileSystem::recover() {
     in.read(buf.buf_, size_buf);
     char *cur_position = buf.buf_;
     for (int i = 0; i < size; i++) {
-        F::FID fid;
-        F::File file;
+        file_fs::FID fid;
+        file_fs::File file;
         size_t size_fid = fid.deserialize(cur_position);
         cur_position += size_fid;
         size_t size_file = file.deserialize(cur_position);
