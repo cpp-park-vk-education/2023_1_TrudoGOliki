@@ -52,8 +52,8 @@ class FileSystem {
                IWriterUP writer, IManagerCLIUP manager_cli);
 
     void selectNewReadFile(const F::FID &fid);
-    buf::Buffer getBuf();
     size_t getSizeFileRead() const;
+    buf::Buffer getBuf();
 
     void createNewFileWrite(const F::FID &fid, const F::FileInfo &info);
     void writeBuf(const buf::Buffer &buf);

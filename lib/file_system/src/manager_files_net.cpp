@@ -66,10 +66,11 @@ buf::Buffer ReaderNet::getBuf() {
             if_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
             auto remainder = if_stream_.gcount();
             if (remainder == 0) {
-                return buf::Buffer(0);
+                throw FSError(
+                    "remainder == 0. Something wrong with read from file");
             }
             if (remainder < 0) {
-                throw FSError("ramainder < 0. Why?");
+                throw FSError("remainder < 0. Why?");
             }
             std::cout << "in read buf" << remainder << std::endl;
             buffer.size_ = static_cast<size_t>(remainder);
