@@ -49,52 +49,60 @@ void FileSystem::createMainDir() {
 
 file_fs::FID FileSystem::addFile(const file_fs::Path &path_from,
                                  const std::string &description) {
+
+    file_fs::FID fid = manager_cli_->calculFID(path_from);
     try {
-        file_fs::FID fid = manager_cli_->calculFID(path_from);
         file_fs::File *find_file = tree_->find(fid);
-        if (find_file) {
-            throw FSError("file with FID: " + fid.hash_ + " already exist");
-        }
-
-        auto path_to = path_main_dir_ / file_fs::Path(fid.hash_);
-        manager_cli_->addFile(path_from, path_to);
-        auto file = new file_fs::File();
-        file->info_.description_ = description;
-
-        std::fstream file_stream(path_to);
-        size_t size = getSizeOfFile(file_stream);
-        file_stream.close();
-        file->info_.size_ = size;
-        file->path_ = path_to;
-        tree_->insert(fid, std::move(*file));
-        return fid;
-    } catch (std::exception &e) {
-        throw FSError("in FS::addFile:" + static_cast<std::string>(e.what()));
+    } catch (avl_tree::AVLError &e) {
+        throw FSError(
+            "in FS::addFile: file with same fid already exist. FID = " +
+            fid.hash_);
     }
+
+    auto path_to = path_main_dir_ / file_fs::Path(fid.hash_);
+    manager_cli_->addFile(path_from, path_to);
+    auto file = new file_fs::File();
+    file->info_.description_ = description;
+
+    std::fstream file_stream(path_to);
+    size_t size = getSizeOfFile(file_stream);
+    file_stream.close();
+    file->info_.size_ = size;
+    file->path_ = path_to;
+    try {
+        tree_->insert(fid, std::move(*file));
+    } catch (avl_tree::AVLError &e) {
+        throw FSError(
+            "in FS::addFile: file with same fid already exist. FID = " +
+            fid.hash_);
+    }
+    return fid;
 }
 
 // FileSystem::eraseFile() can throw FSError
 void FileSystem::eraseFile(const file_fs::FID &fid) {
-    auto file = tree_->find(fid);
-    if (file) {
+    try {
+        auto file = tree_->find(fid);
         manager_cli_->eraseFile(file->path_);
         tree_->erase(fid);
-    } else {
-        throw FSError("in eraseFile: can`t erase file with fid: " + fid.hash_);
+    } catch (std::exception &e) {
+        throw FSError("in eraseFile: can`t erase file with fid: " + fid.hash_ +
+                      " because: " + static_cast<std::string>(e.what()));
     }
 }
 
 // FileSystem::selectNewReadFile() can throw FSError
 void FileSystem::selectNewReadFile(const file_fs::FID &fid) {
-    file_fs::File *file = tree_->find(fid);
-    if (file) {
+    try {
+        file_fs::File *file = tree_->find(fid);
         std::fstream check_size(file->path_);
         manager_net_.reader_->setSizeRead(getSizeOfFile(check_size));
         check_size.close();
         manager_net_.reader_->selectNewFileRead(file->path_);
-    } else {
-        throw FSError("in selectNewReadFile: can`t select file with fid: " +
-                      fid.hash_);
+    } catch (std::exception &e) {
+        throw FSError(
+            "in selectNewReadFile: can`t select file with fid: " + fid.hash_ +
+            " because: " + static_cast<std::string>(e.what()));
     }
 }
 
@@ -109,9 +117,6 @@ void FileSystem::createNewFileWrite(const file_fs::FID &fid,
                                     const file_fs::FileInfo &info) {
     try {
         file_fs::File *find_file = tree_->find(fid);
-        if (find_file) {
-            throw FSError("file with FID: " + fid.hash_ + " already exist");
-        }
         auto file = new file_fs::File();
         file->info_ = info;
         std::string extension = "";   // from info later
@@ -119,8 +124,9 @@ void FileSystem::createNewFileWrite(const file_fs::FID &fid,
         manager_net_.writer_->createNewFileWrite(fid, *file);
         tree_->insert(fid, std::move(*file));
     } catch (std::exception &e) {
-        throw FSError("in FileSystem::createNewFileWrite: " +
-                      static_cast<std::string>(e.what()));
+        throw FSError(
+            "in FileSystem::createNewFileWrite with file with fid = " +
+            fid.hash_ + " because " + static_cast<std::string>(e.what()));
     }
 }
 

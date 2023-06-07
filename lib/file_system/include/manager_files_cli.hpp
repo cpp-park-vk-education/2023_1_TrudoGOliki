@@ -3,6 +3,9 @@
 #include "file.hpp"
 
 namespace fs {
+class IManagerCLI;
+using IManagerCLIUP = std::unique_ptr<IManagerCLI>;
+
 class IManagerCLI {
   public:
     virtual void addFile(const file_fs::Path &path_from,

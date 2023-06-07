@@ -9,9 +9,6 @@
 #include "manager_files_net.hpp"
 
 namespace fs {
-class IManagerCLI;
-using IManagerCLIUP = std::unique_ptr<IManagerCLI>;
-
 class FileSystem {
   public:
     FileSystem(const std::string_view &name_main_dir,
@@ -26,6 +23,7 @@ class FileSystem {
                             const file_fs::FileInfo &info);
     void writeBuf(const buf::Buffer &buf);
 
+    // addFile() can throw FSError
     file_fs::FID addFile(const file_fs::Path &path_from,
                          const std::string &description);
 

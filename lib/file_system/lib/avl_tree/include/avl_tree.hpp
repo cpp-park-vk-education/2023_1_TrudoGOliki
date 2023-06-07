@@ -130,10 +130,10 @@ class AVLTree {
         return node->height_;
     };
 
-    // findAux() return nullptr if node with key not exist
+    // findAux() throw AVLError if node with key not exist
     Value *findAux(const Key &key, TreeNode *node) {
         if (!node) {
-            return nullptr;
+            throw AVLError("in findAux: node with passed key not found")
         }
 
         int res_comp = comp_(key, node->key_);
@@ -151,7 +151,7 @@ class AVLTree {
         return &node->val_;
     };
 
-    // insertAux() can throw AVLError
+    // insertAux() throw AVLError if node with same key exist
     TreeNode *insertAux(const Key &key, Value &&val, TreeNode *node) {
         if (!node) {
             return new TreeNode(key, std::move(val));
@@ -176,9 +176,11 @@ class AVLTree {
         return balance(node);
     };
 
+    // eraseAux() throw AVLError when node with passed key not exist
     TreeNode *eraseAux(const Key &key, TreeNode *node) {
         if (!node) {
-            return nullptr;
+            throw AVLError(
+                "in eraseAux: node with passed key not exist in tree")
         }
 
         int res_comp = comp_(key, node->key_);
