@@ -29,7 +29,7 @@ void WriterNet::createNewFileWrite(const file_fs::FID &fid,
 
 void WriterNet::writeBuf(const buf::Buffer &buf) {
     if (of_stream_.tellp() < size_file_) {
-        of_stream_.write(buf.buf_, buf.size_);
+        of_stream_.write(buf.get(), buf.size_);
         if (of_stream_.tellp() == size_file_) {
             of_stream_.close();
         }
@@ -63,7 +63,7 @@ buf::Buffer ReaderNet::getBuf() {
     try {
         if (if_stream_.tellg() < size_file_) {
             buf::Buffer buffer = buf::Buffer(STANDARD_BUFFER_SIZE);
-            if_stream_.read(buffer.buf_, STANDARD_BUFFER_SIZE);
+            if_stream_.read(buffer.get(), STANDARD_BUFFER_SIZE);
             auto remainder = if_stream_.gcount();
             if (remainder == 0) {
                 throw FSError(

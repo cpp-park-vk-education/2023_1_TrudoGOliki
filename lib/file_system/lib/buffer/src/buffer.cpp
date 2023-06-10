@@ -13,7 +13,7 @@ Buffer::Buffer(size_t size) : size_(size) {
     if (size == 0) {
         throw BufError("can`t create buffer with size=0");
     } else {
-        buf_ = new char[size];
+        buf_ = std::unique_ptr<char[]>(new char[size]);
     }
 };
 
@@ -21,7 +21,7 @@ Buffer::Buffer(size_t size) : size_(size) {
 // buf==nullptr
 Buffer::Buffer(const char *buf, size_t size) : Buffer(size) {
     if (buf != nullptr) {
-        copyBuf(buf, buf_, size);
+        copyBuf(buf, buf_.get(), size);
         return;
     }
     throw BufError("can`t create buffer with size=" + std::to_string(size) +
@@ -34,7 +34,7 @@ Buffer::Buffer(const Buffer &other)
     if (other.buf_ == nullptr || other.size_ == 0) {
         throw BufError("Buffer(const &) can`t work with unccorect bufers");
     }
-    copyBuf(other.buf_, this->buf_, other.size_);
+    copyBuf(other.buf_.get(), buf_.get(), other.size_);
 };
 
 // Buffer(&&) can throw BufError
@@ -53,9 +53,9 @@ Buffer &Buffer::operator=(const Buffer &other) {
         throw BufError("operator=(const &) can`t work with unccorect bufers");
     }
     if (this != &other) {
-        char *tmp = new char[other.size_];
-        copyBuf(other.buf_, tmp, other.size_);
-        delete[] buf_;
+        auto tmp = std::unique_ptr<char[]>(new char[other.size_]);
+        copyBuf(other.buf_.get(), tmp.get(), other.size_);
+        buf_ = std::move(tmp);
 
         buf_ = std::exchange(tmp, nullptr);
         size_ = other.size_;
@@ -84,16 +84,15 @@ Buffer &Buffer::operator+(Buffer &other) {
         other.size_ == 0) {
         throw BufError("can`t summ unccorect bufers");
     }
-    Buffer tmp(size_ + other.size_);
-    copyBuf(buf_, tmp.buf_, size_);
-    copyBuf(other.buf_, tmp.buf_ + size_, other.size_);
+    auto tmp = std::unique_ptr<char[]>(new char[size_ + other.size_]);
+    copyBuf(buf_.get(), tmp.get(), size_);
+    copyBuf(other.buf_.get(), tmp.get() + size_, other.size_);
 
-    delete[] buf_;
-    buf_ = std::exchange(tmp.buf_, nullptr);
-    size_ = tmp.size_;
+    buf_ = std::move(tmp);
+    size_ += other.size_;
 
     return *this;
 };
 
-Buffer::~Buffer() { delete[] buf_; }
+char *Buffer::get() const noexcept { return buf_.get(); };
 }   // namespace buf

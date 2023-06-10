@@ -20,7 +20,7 @@ bool FID::operator==(const FID &other) const { return hash_ == other.hash_; };
 buf::Buffer FID::serialize() const {
     size_t size_hash = hash_.size();
     auto buf = buf::Buffer(size_hash + sizeof(size_t));
-    char *cur_position = buf.buf_;
+    char *cur_position = buf.get();
 
     std::memcpy(cur_position, &size_hash, sizeof(size_t));
     cur_position += sizeof(size_t);
@@ -52,7 +52,7 @@ FileInfo::FileInfo(std::string &&description, size_t size)
 buf::Buffer FileInfo::serialize() const {
     size_t desc_size = description_.size();
     auto buf = buf::Buffer(desc_size + 2 * sizeof(size_t));
-    char *cur_position = buf.buf_;
+    char *cur_position = buf.get();
     std::memcpy(cur_position, &desc_size, sizeof(size_t));
     cur_position += sizeof(size_t);
     buf::copyBuf(description_.c_str(), cur_position, desc_size);
@@ -89,7 +89,7 @@ buf::Buffer File::serialize() const {
     size_t path_size = path_str.size();
 
     auto buf = buf::Buffer(path_size + sizeof(size_t));
-    char *cur_position = buf.buf_;
+    char *cur_position = buf.get();
 
     std::memcpy(cur_position, &path_size, sizeof(size_t));
     cur_position += sizeof(size_t);

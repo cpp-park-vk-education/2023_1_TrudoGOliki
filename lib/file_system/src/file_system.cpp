@@ -159,8 +159,8 @@ void FileSystem::save() {
     for (int i = 0; i < size; i++) {
         buf::Buffer first = vec_all[i].first.serialize();
         buf::Buffer second = vec_all[i].second.serialize();
-        out.write(first.buf_, first.size_);
-        out.write(second.buf_, second.size_);
+        out.write(first.get(), first.size_);
+        out.write(second.get(), second.size_);
     }
 
     out.close();
@@ -191,8 +191,8 @@ void FileSystem::recover() {
     size_t size_buf = getRemainder(in);
 
     buf::Buffer buf(size_buf);
-    in.read(buf.buf_, size_buf);
-    char *cur_position = buf.buf_;
+    in.read(buf.buf_.get(), size_buf);
+    char *cur_position = buf.buf_.get();
     for (int i = 0; i < size; i++) {
         file_fs::FID fid;
         file_fs::File file;

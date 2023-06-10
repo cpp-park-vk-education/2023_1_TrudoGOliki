@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stddef.h>
 
 namespace buf {
@@ -19,9 +20,9 @@ class Buffer {
     Buffer &operator=(Buffer &&other);
     Buffer &operator+(Buffer &other);
 
-    ~Buffer();
+    char *get() const noexcept;
 
-    char *buf_;
+    std::unique_ptr<char[]> buf_;
     size_t size_;
 };
 }   // namespace buf
