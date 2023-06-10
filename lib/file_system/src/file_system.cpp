@@ -116,12 +116,12 @@ void FileSystem::createNewFileWrite(const file_fs::FID &fid,
                                     const file_fs::FileInfo &info) {
     try {
         file_fs::File *find_file = tree_->find(fid);
-        auto file = new file_fs::File();
-        file->info_ = info;
+        auto file = file_fs::File();
+        file.info_ = info;
         std::string extension = "";   // from info later
-        file->path_ = path_main_dir_ / (fid.hash_ + extension);
-        manager_net_.writer_->createNewFileWrite(fid, *file);
-        tree_->insert(fid, std::move(*file));
+        file.path_ = path_main_dir_ / (fid.hash_ + extension);
+        manager_net_.writer_->createNewFileWrite(fid, file);
+        tree_->insert(fid, std::move(file));
     } catch (std::exception &e) {
         throw FSError(
             "in FileSystem::createNewFileWrite with file with fid = " +
