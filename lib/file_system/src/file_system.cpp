@@ -51,9 +51,8 @@ file_fs::FID FileSystem::addFile(const file_fs::Path &path_from,
                                  const std::string &description) {
 
     file_fs::FID fid = manager_cli_->calculFID(path_from);
-    try {
-        file_fs::File *find_file = tree_->find(fid);
-    } catch (avl_tree::AVLError &e) {
+    file_fs::File *find_file = tree_->find(fid);
+    if (find_file) {
         throw FSError(
             "in FS::addFile: file with same fid already exist. FID = " +
             fid.hash_);
@@ -61,16 +60,16 @@ file_fs::FID FileSystem::addFile(const file_fs::Path &path_from,
 
     auto path_to = path_main_dir_ / file_fs::Path(fid.hash_);
     manager_cli_->addFile(path_from, path_to);
-    auto file = new file_fs::File();
-    file->info_.description_ = description;
+    auto file = file_fs::File();
+    file.info_.description_ = description;
 
     std::fstream file_stream(path_to);
     size_t size = getSizeOfFile(file_stream);
     file_stream.close();
-    file->info_.size_ = size;
-    file->path_ = path_to;
+    file.info_.size_ = size;
+    file.path_ = path_to;
     try {
-        tree_->insert(fid, std::move(*file));
+        tree_->insert(fid, std::move(file));
     } catch (avl_tree::AVLError &e) {
         throw FSError(
             "in FS::addFile: file with same fid already exist. FID = " +

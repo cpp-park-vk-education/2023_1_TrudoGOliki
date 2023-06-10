@@ -130,10 +130,10 @@ class AVLTree {
         return node->height_;
     };
 
-    // findAux() throw AVLError if node with key not exist
+    // findAux() return nullptr if node with key not exist
     Value *findAux(const Key &key, TreeNode *node) {
         if (!node) {
-            throw AVLError("in findAux: node with passed key not found")
+            return nullptr;
         }
 
         int res_comp = comp_(key, node->key_);
@@ -180,7 +180,7 @@ class AVLTree {
     TreeNode *eraseAux(const Key &key, TreeNode *node) {
         if (!node) {
             throw AVLError(
-                "in eraseAux: node with passed key not exist in tree")
+                "in eraseAux: node with passed key not exist in tree");
         }
 
         int res_comp = comp_(key, node->key_);
