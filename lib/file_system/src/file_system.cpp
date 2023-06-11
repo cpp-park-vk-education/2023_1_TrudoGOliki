@@ -116,6 +116,9 @@ void FileSystem::createNewFileWrite(const file_fs::FID &fid,
                                     const file_fs::FileInfo &info) {
     try {
         file_fs::File *find_file = tree_->find(fid);
+        if (find_file) {
+            throw FSError("file with same fid already exist.");
+        }
         auto file = file_fs::File();
         file.info_ = info;
         std::string extension = "";   // from info later
@@ -125,7 +128,7 @@ void FileSystem::createNewFileWrite(const file_fs::FID &fid,
     } catch (std::exception &e) {
         throw FSError(
             "in FileSystem::createNewFileWrite with file with fid = " +
-            fid.hash_ + " because " + static_cast<std::string>(e.what()));
+            fid.hash_ + " because: " + static_cast<std::string>(e.what()));
     }
 }
 
