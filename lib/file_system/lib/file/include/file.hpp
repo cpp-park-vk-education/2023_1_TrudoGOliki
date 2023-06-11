@@ -30,7 +30,7 @@ struct FileInfo : public iserial::ISerializable {
     size_t deserialize(const char *buf) override;
 
     std::string description_;
-    size_t size_;
+    size_t size_ = 0;
 };
 
 class File : public iserial::ISerializable {

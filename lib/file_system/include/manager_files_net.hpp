@@ -26,7 +26,7 @@ class WriterNet : public IWriterNet {
     void writeBuf(const buf::Buffer &buf) override;
 
   private:
-    size_t size_file_;
+    size_t size_file_ = 0;
     std::ofstream of_stream_;
 };
 
@@ -49,7 +49,7 @@ class ReaderNet : public IReaderNet {
     ~ReaderNet() override;
 
   private:
-    size_t size_file_;
+    size_t size_file_ = 0;
     std::fstream if_stream_;
 };
 

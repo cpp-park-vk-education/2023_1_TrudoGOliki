@@ -38,7 +38,7 @@ void WriterNet::writeBuf(const buf::Buffer &buf) {
     }
 };
 
-ReaderNet::ReaderNet() : size_file_(0){};
+ReaderNet::ReaderNet(){};
 ReaderNet::~ReaderNet() = default;
 
 // ReaderNet::selectNewFileRead() can throw FSError

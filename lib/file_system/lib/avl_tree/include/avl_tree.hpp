@@ -29,20 +29,18 @@ class AVLTree {
     struct TreeNode {
       public:
         explicit TreeNode(const Key &key, Value &&val)
-            : key_(key), val_(std::move(val)), height_(1), left_(nullptr),
-              right_(nullptr){};
+            : key_(key), val_(std::move(val)){};
 
         const Key key_;
         Value val_;
 
-        uint8_t height_;
-        TreeNode *left_;
-        TreeNode *right_;
+        uint8_t height_ = 1;
+        TreeNode *left_ = nullptr;
+        TreeNode *right_ = nullptr;
     };
 
   public:
-    explicit AVLTree(Comparator comp = Comparator()) noexcept
-        : root_(nullptr), comp_(comp){};
+    explicit AVLTree(Comparator comp = Comparator()) noexcept : comp_(comp){};
 
     Value *find(const Key &key) noexcept { return findAux(key, root_); };
     void insert(const Key &key, Value &&val) {
@@ -73,7 +71,7 @@ class AVLTree {
     }
 
   private:
-    TreeNode *root_;
+    TreeNode *root_ = nullptr;
     Comparator comp_;
 
     void post_order(const std::function<void(TreeNode *)> &handler) {

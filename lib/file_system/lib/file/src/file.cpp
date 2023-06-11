@@ -43,7 +43,7 @@ size_t FID::deserialize(const char *buf) {
     return cur_position - buf;
 };
 
-FileInfo::FileInfo() noexcept : size_(0){};
+FileInfo::FileInfo() noexcept {};
 
 FileInfo::FileInfo(const std::string &description, size_t size) noexcept
     : description_(description), size_(size){};
