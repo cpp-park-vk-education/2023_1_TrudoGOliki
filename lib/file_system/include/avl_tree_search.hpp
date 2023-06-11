@@ -28,7 +28,7 @@ class AVLTreeSearch : public AVLT::AVLTree<file_fs::FID, file_fs::File>,
   public:
     void insert(const file_fs::FID &fid, file_fs::File &&file) override;
     void erase(const file_fs::FID &fid) override;
-    file_fs::File *find(const file_fs::FID &fid) override;
+    file_fs::File *find(const file_fs::FID &fid) noexcept override;
 
     std::vector<file_fs::FID> getAllFids() override;
     std::vector<std::pair<file_fs::FID, file_fs::File>> getAll() override;

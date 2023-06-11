@@ -44,8 +44,8 @@ class ReaderNet : public IReaderNet {
     ReaderNet();
     void selectNewFileRead(const file_fs::Path &path) override;
     buf::Buffer getBuf() override;
-    void setSizeRead(size_t size) override;
-    size_t getSizeFileRead() const override;
+    void setSizeRead(size_t size) noexcept override;
+    size_t getSizeFileRead() const noexcept override;
     ~ReaderNet() override;
 
   private:

@@ -107,7 +107,7 @@ void FileSystem::selectNewReadFile(const file_fs::FID &fid) {
 
 buf::Buffer FileSystem::getBuf() { return manager_net_.reader_->getBuf(); }
 
-size_t FileSystem::getSizeFileRead() const {
+size_t FileSystem::getSizeFileRead() const noexcept {
     return manager_net_.reader_->getSizeFileRead();
 };
 

@@ -3,11 +3,11 @@
 #include "file.hpp"
 
 namespace file_fs {
-FID::FID(){};
+FID::FID() noexcept {};
 
-FID::FID(std::string hash) : hash_(std::move(hash)){};
+FID::FID(std::string hash) noexcept : hash_(std::move(hash)){};
 
-bool FID::operator<(const FID &other) const {
+bool FID::operator<(const FID &other) const noexcept {
     if (hash_ < other.hash_) {
         return true;
     }
@@ -15,7 +15,9 @@ bool FID::operator<(const FID &other) const {
     return false;
 };
 
-bool FID::operator==(const FID &other) const { return hash_ == other.hash_; };
+bool FID::operator==(const FID &other) const noexcept {
+    return hash_ == other.hash_;
+};
 
 buf::Buffer FID::serialize() const {
     size_t size_hash = hash_.size();
@@ -41,12 +43,12 @@ size_t FID::deserialize(const char *buf) {
     return cur_position - buf;
 };
 
-FileInfo::FileInfo() : size_(0){};
+FileInfo::FileInfo() noexcept : size_(0){};
 
-FileInfo::FileInfo(const std::string &description, size_t size)
+FileInfo::FileInfo(const std::string &description, size_t size) noexcept
     : description_(description), size_(size){};
 
-FileInfo::FileInfo(std::string &&description, size_t size)
+FileInfo::FileInfo(std::string &&description, size_t size) noexcept
     : description_(std::move(description)), size_(size){};
 
 buf::Buffer FileInfo::serialize() const {
@@ -77,11 +79,12 @@ size_t FileInfo::deserialize(const char *buf) {
     return cur_position - buf;
 };
 
-File::File(){};
+File::File() noexcept {};
 
-File::File(const Path &path, const FileInfo &info) : path_(path), info_(info){};
+File::File(const Path &path, const FileInfo &info) noexcept
+    : path_(path), info_(info){};
 
-File::File(Path &&path, FileInfo &&info)
+File::File(Path &&path, FileInfo &&info) noexcept
     : path_(std::move(path)), info_(std::move(info)){};
 
 buf::Buffer File::serialize() const {

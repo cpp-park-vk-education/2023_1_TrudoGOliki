@@ -13,7 +13,7 @@ inline void copyBuf(const char *from_buf, char *to_buf, size_t count) {
 class Buffer {
   public:
     explicit Buffer(size_t size);
-    Buffer(const char *buf, size_t size);
+    explicit Buffer(const char *buf, size_t size);
     Buffer(const Buffer &other);
     Buffer(Buffer &&other);
     Buffer &operator=(const Buffer &other);

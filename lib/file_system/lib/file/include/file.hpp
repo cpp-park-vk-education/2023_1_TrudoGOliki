@@ -9,11 +9,11 @@ namespace file_fs {
 using Path = std::filesystem::path;
 
 struct FID : public iserial::ISerializable {
-    FID();
-    FID(std::string hash);
+    explicit FID() noexcept;
+    explicit FID(std::string hash) noexcept;
 
-    bool operator<(const FID &other) const;
-    bool operator==(const FID &other) const;
+    bool operator<(const FID &other) const noexcept;
+    bool operator==(const FID &other) const noexcept;
 
     buf::Buffer serialize() const override;
     size_t deserialize(const char *buf) override;
@@ -22,9 +22,9 @@ struct FID : public iserial::ISerializable {
 };
 
 struct FileInfo : public iserial::ISerializable {
-    FileInfo();
-    FileInfo(const std::string &description, size_t size);
-    FileInfo(std::string &&description, size_t size);
+    explicit FileInfo() noexcept;
+    explicit FileInfo(const std::string &description, size_t size) noexcept;
+    explicit FileInfo(std::string &&description, size_t size) noexcept;
 
     buf::Buffer serialize() const override;
     size_t deserialize(const char *buf) override;
@@ -35,9 +35,9 @@ struct FileInfo : public iserial::ISerializable {
 
 class File : public iserial::ISerializable {
   public:
-    File();
-    File(const Path &path, const FileInfo &info);
-    File(Path &&path, FileInfo &&info);
+    explicit File() noexcept;
+    explicit File(const Path &path, const FileInfo &info) noexcept;
+    explicit File(Path &&path, FileInfo &&info) noexcept;
 
     buf::Buffer serialize() const override;
     size_t deserialize(const char *buf) override;

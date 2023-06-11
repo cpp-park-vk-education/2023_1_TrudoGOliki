@@ -8,7 +8,7 @@ void AVLTreeSearch::insert(const file_fs::FID &fid, file_fs::File &&file) {
 
 void AVLTreeSearch::erase(const file_fs::FID &fid) { AVLTree::erase(fid); };
 
-file_fs::File *AVLTreeSearch::find(const file_fs::FID &fid) {
+file_fs::File *AVLTreeSearch::find(const file_fs::FID &fid) noexcept {
     return AVLTree::find(fid);
 };
 

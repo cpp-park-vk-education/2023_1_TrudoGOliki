@@ -11,7 +11,7 @@ class AVLError : public std::runtime_error {
 };
 
 template <typename T> struct DefaultComparator {
-    int operator()(const T &l, const T &r) {
+    int operator()(const T &l, const T &r) noexcept {
         if (l < r) {
             return -1;
         }
@@ -28,7 +28,7 @@ template <typename Key, typename Value,
 class AVLTree {
     struct TreeNode {
       public:
-        TreeNode(const Key &key, Value &&val)
+        explicit TreeNode(const Key &key, Value &&val)
             : key_(key), val_(std::move(val)), height_(1), left_(nullptr),
               right_(nullptr){};
 
@@ -41,9 +41,10 @@ class AVLTree {
     };
 
   public:
-    AVLTree(Comparator comp = Comparator()) : root_(nullptr), comp_(comp){};
+    explicit AVLTree(Comparator comp = Comparator()) noexcept
+        : root_(nullptr), comp_(comp){};
 
-    Value *find(const Key &key) { return findAux(key, root_); };
+    Value *find(const Key &key) noexcept { return findAux(key, root_); };
     void insert(const Key &key, Value &&val) {
         root_ = insertAux(key, std::move(val), root_);
     };
@@ -131,7 +132,7 @@ class AVLTree {
     };
 
     // findAux() return nullptr if node with key not exist
-    Value *findAux(const Key &key, TreeNode *node) {
+    Value *findAux(const Key &key, TreeNode *node) noexcept {
         if (!node) {
             return nullptr;
         }
