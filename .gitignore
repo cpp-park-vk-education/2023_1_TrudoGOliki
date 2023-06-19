@@ -4,3 +4,4 @@
 .clang-format
 build/
 .vscode
+.editorconfig

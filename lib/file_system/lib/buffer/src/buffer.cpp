@@ -1,39 +1,36 @@
 #include "buffer.hpp"
 
 #include <memory>
-#include <stdexcept>
 
 namespace buf {
-class BufError : public std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
-
 // Buffer(size_t size) can throw BufError if size==0
 Buffer::Buffer(size_t size) : size_(size) {
     if (size == 0) {
         throw BufError("can`t create buffer with size=0");
     } else {
-        buf_ = std::unique_ptr<char[]>(new char[size]);
+        buf_ = std::make_unique<char[]>(size);
     }
 };
 
 // Buffer(char *buf, size_t size) can throw BufError if size==0 or
 // buf==nullptr
 Buffer::Buffer(const char *buf, size_t size) : Buffer(size) {
+    if (buf == nullptr){
+        throw BufError("can`t create buffer==nullptr");
+    }
     if (buf != nullptr) {
         copyBuf(buf, buf_.get(), size);
         return;
     }
-    throw BufError("can`t create buffer with size=" + std::to_string(size) +
-                   " and buf=" + buf);
 }
 
 // Buffer(const &) can throw BufError
 Buffer::Buffer(const Buffer &other)
-    : buf_(new char[other.size_]), size_(other.size_) {
+    : size_(other.size_) {
     if (other.buf_ == nullptr || other.size_ == 0) {
         throw BufError("Buffer(const &) can`t work with unccorect bufers");
     }
+    buf_ = std::make_unique<char[]>(other.size_);
     copyBuf(other.buf_.get(), buf_.get(), other.size_);
 };
 
@@ -43,7 +40,8 @@ Buffer::Buffer(Buffer &&other) {
         throw BufError("Buffer(&&) can`t work with unccorect bufers");
     }
     size_ = other.size_;
-    buf_ = std::exchange(other.buf_, nullptr);
+    other.size_ = 0;
+    buf_ = std::move(other.buf_);
 };
 
 // operator=(const &) can throw BufError
@@ -53,11 +51,10 @@ Buffer &Buffer::operator=(const Buffer &other) {
         throw BufError("operator=(const &) can`t work with unccorect bufers");
     }
     if (this != &other) {
-        auto tmp = std::unique_ptr<char[]>(new char[other.size_]);
+        auto tmp = std::make_unique<char[]>(other.size_);
         copyBuf(other.buf_.get(), tmp.get(), other.size_);
-        buf_ = std::move(tmp);
 
-        buf_ = std::exchange(tmp, nullptr);
+        buf_ = std::move(tmp);
         size_ = other.size_;
     }
     return *this;
@@ -72,11 +69,26 @@ Buffer &Buffer::operator=(Buffer &&other) {
     if (this != &other) {
         this->~Buffer();
         size_ = other.size_;
-        buf_ = std::exchange(other.buf_, nullptr);
+        other.size_ = 0;
+        buf_ = std::move(other.buf_);
     }
 
     return *this;
 };
+
+bool Buffer::operator==(const Buffer& other) const {
+    if (size_ != other.size_){
+        return false;
+    }
+
+    for (size_t i = 0; i < size_; i++) {
+        if (buf_[i] != other.buf_[i]) {
+            return false;
+        }
+    };
+
+    return true;
+}
 
 // Buffer::operator+ throw BufError
 Buffer &Buffer::operator+(Buffer &other) {
@@ -84,7 +96,7 @@ Buffer &Buffer::operator+(Buffer &other) {
         other.size_ == 0) {
         throw BufError("can`t summ unccorect bufers");
     }
-    auto tmp = std::unique_ptr<char[]>(new char[size_ + other.size_]);
+    auto tmp = std::make_unique<char[]>(size_ + other.size_);
     copyBuf(buf_.get(), tmp.get(), size_);
     copyBuf(other.buf_.get(), tmp.get() + size_, other.size_);
 
