@@ -135,8 +135,9 @@ class AVLTree {
             return nullptr;
         }
 
+        int res_comp;
         try {
-            int res_comp = comp_(key, node->key_);
+            res_comp = comp_(key, node->key_);
         } catch (...) {
             return nullptr;
         }
