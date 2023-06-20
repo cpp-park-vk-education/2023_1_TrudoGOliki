@@ -1,0 +1,7 @@
+**/sem*
+**/main
+**/a.out
+.clang-format
+build/
+.vscode
+.editorconfig
